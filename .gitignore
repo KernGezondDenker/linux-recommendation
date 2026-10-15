@@ -1,0 +1,26 @@
+# --- Java / Maven ---
+target/
+*.class
+*.jar
+!.mvn/wrapper/maven-wrapper.jar
+
+# --- Node / React ---
+node_modules/
+dist/
+*.local
+
+# --- Secrets : NE JAMAIS COMMITER ---
+# Un secret commite est un secret compromis DEFINITIVEMENT : meme
+# supprime ensuite, il reste consultable dans l'historique Git.
+.env
+.env.*
+application-local.yml
+
+# --- Editeurs ---
+.idea/
+.vscode/settings.json
+*.iml
+
+# --- Systeme ---
+.DS_Store
+Thumbs.db
