@@ -17,9 +17,9 @@ sites et documentations officiels: Linux Mint, Ubuntu Studio, Fedora
 Workstation, CachyOS et Zorin OS Education. 21 distributions
 ont été examinées et les seize autres seront integrées plus tard.
 
-Chaque valeur est consignee dans `docs/registre-des-attributions.md`
-avec son fait observe et sa source. Les points restant a confirmer y
-sont marques.
+Chaque valeur est consignée dans `docs/registre-des-attributions.md`
+avec son fait observé et sa source. Les points restant à confirmer y
+sont marqués.
 
 Architecture
 
