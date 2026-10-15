@@ -1,9 +1,7 @@
 # Cahier des charges — LinuxRecommendation
 
-**Unité d'enseignement** : Projet d'intégration de développement (7534 35 U32 D2)
 **Section** : Bachelier en informatique de gestion
 **Année académique** : 2026-2027
-**Chargé de cours** : Yolan FERY
 **Équipe** : 2 étudiants
 **Dépôt** : `https://github.com/<organisation>/linux-recommendation`
 
