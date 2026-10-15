@@ -12,7 +12,7 @@ Etat
 Début d'une Maquette technique: une tranche verticale traversant chaque couche du
 projet.
 
-Le catalogue contient **cinq distributions reelles**, relevées sur les
+Le catalogue contient **cinq distributions réelles**, relevées sur les
 sites et documentations officiels: Linux Mint, Ubuntu Studio, Fedora
 Workstation, CachyOS et Zorin OS Education. 21 distributions
 ont été examinées et les seize autres seront integrées plus tard.
