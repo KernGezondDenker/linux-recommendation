@@ -15,7 +15,7 @@ projet.
 Le catalogue contient **cinq distributions réelles**, relevées sur les
 sites et documentations officiels: Linux Mint, Ubuntu Studio, Fedora
 Workstation, CachyOS et Zorin OS Education. 21 distributions
-ont été examinées et les seize autres seront integrées plus tard.
+ont été examinées et les 16 autres seront integrées plus tard.
 
 Chaque valeur est consignée dans `docs/registre-des-attributions.md`
 avec son fait observé et sa source. Les points restant à confirmer y
@@ -50,7 +50,7 @@ docker compose up --build
 
 Puis ouvrir http://localhost:5173
 
-Verifier que les services repondent :
+Vérifier que les services répondent :
 
 ```bash
 curl http://localhost:8081/actuator/health
@@ -63,7 +63,7 @@ Le catalogue :
 curl http://localhost:8081/api/v1/distributions
 ```
 
-Une recommandation complete :
+Une recommandation complète :
 
 ```bash
 curl -X POST http://localhost:8082/api/v1/recommendations \
@@ -80,28 +80,27 @@ cd recommendation-service && mvn test   # moteur de recommandation
 cd catalog-service        && mvn test   # logique du catalogue
 ```
 
-Les deux suites s'executent sans base de donnees ni serveur : le code
-metier ne depend que d'interfaces.
+Les deux suites s'éxecutent sans base de données, ni serveur: le code
+métier ne depend que d'interfaces.
 
-## Perimetre de cette esquisse
+Une petite esquisse: 
 
-Implemente et expose : le catalogue des distributions et le moteur de
-recommandation, de la base de donnees jusqu'a l'interface.
+Implémente et expose: le catalogue des distributions et le moteur de
+recommandation, de la base de données jusqu'à l'interface.
 
-Modelise dans le schema mais PAS ENCORE expose : les applications,
+Modélisé dans le schema mais PAS ENCORE exposé: les applications,
 leurs alternatives Linux et leur disponibilite par distribution (trois
-tables, voir V1__init_schema.sql). Choix de perimetre assume pour cette
-premiere version.
+tables, voir V1__init_schema.sql). Choix de cet esquisse assumé pour une première version.
 
 ## Documentation
 
 | Document | Contenu |
 |---|---|
-| `docs/cahier-des-charges.md` | Perimetre, architecture, choix techniques, securite |
-| `docs/note-technique-algorithme-et-base.md` | Moteur et modele de donnees en detail |
-| `docs/grille-de-codage.md` | Criteres d'attribution des notes du catalogue |
-| `docs/registre-des-attributions.md` | Chaque note du catalogue, son fait observe et sa source |
-| `docs/releve-des-distributions.xlsx` | Relevé brut des 21 distributions examinees |
+| `docs/cahier-des-charges.md` | Perimetre, architecture, choix techniques, sécurité |
+| `docs/note-technique-algorithme-et-base.md` | Moteur et modele de donnees en détail |
+| `docs/grille-de-codage.md` | Critères d'attribution des notes du catalogue |
+| `docs/registre-des-attributions.md` | Chaque note du catalogue, son fait observé et sa source |
+| `docs/releve-des-distributions.xlsx` | Relevé brut des 21 distributions examinées |
 
 ## Licence
 
