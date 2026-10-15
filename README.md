@@ -1,28 +1,27 @@
-# LinuxRecommendation
+LinuxRecommendation
 
 Application web qui filtre un catalogue documente de distributions
 Linux selon la configuration materielle et le profil de l'utilisateur,
-classe les resultats selon des ponderations publiees, et justifie
+classe les resultats selon des ponderations publiées, et justifie
 chaque classement.
 
-Projet d'integration de developpement — Bachelier en informatique de
+Projet d'integration de developpement pour un Bachelier en informatique de
 gestion, 2026-2027.
 
-## Etat
-
-Maquette technique : une tranche verticale traversant chaque couche du
+Etat
+Début d'une Maquette technique: une tranche verticale traversant chaque couche du
 projet.
 
-Le catalogue contient **cinq distributions reelles**, relevees sur les
-sites et documentations officiels : Linux Mint, Ubuntu Studio, Fedora
-Workstation, CachyOS et Zorin OS Education. Vingt-et-une distributions
-ont ete examinees ; les seize autres seront integrees ulterieurement.
+Le catalogue contient **cinq distributions reelles**, relevées sur les
+sites et documentations officiels: Linux Mint, Ubuntu Studio, Fedora
+Workstation, CachyOS et Zorin OS Education. 21 distributions
+ont été examinées et les seize autres seront integrées plus tard.
 
 Chaque valeur est consignee dans `docs/registre-des-attributions.md`
 avec son fait observe et sa source. Les points restant a confirmer y
 sont marques.
 
-## Architecture
+Architecture
 
 ```
 Navigateur
