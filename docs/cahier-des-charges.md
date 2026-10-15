@@ -24,7 +24,7 @@
 
 ### 1.1 Contexte et problème
 
-Un utilisateur de Windows qui envisage de migrer vers Linux se heurte à un obstacle immédiat : il existe plusieurs centaines de distributions, et les comparatifs disponibles en ligne sont soit trop techniques, soit réduits à des classements de popularité sans rapport avec la situation réelle du demandeur.
+Un utilisateur de Windows qui envisage de migrer vers Linux se heurte à un obstacle immédiat: il existe plusieurs centaines de distributions, et les comparatifs disponibles en ligne sont soit trop techniques, soit réduits à des classements de popularité sans rapport avec la situation réelle du demandeur.
 
 Deux facteurs déterminent pourtant la réussite d'une migration, et aucun n'est correctement traité par ces comparatifs :
 
