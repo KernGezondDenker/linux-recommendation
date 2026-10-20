@@ -1,0 +1,64 @@
+# =====================================================================
+# Pile complete : base de donnees + deux services + interface.
+#
+#   docker compose up --build
+#   http://localhost:5173
+# =====================================================================
+services:
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: linux_distro_reco
+      MYSQL_USER: linuxreco
+      # Valeurs de DEVELOPPEMENT uniquement. En production, elles
+      # viennent des GitHub Secrets et des variables d'environnement
+      # du serveur, jamais d'un fichier commite.
+      MYSQL_PASSWORD: ${DB_PASSWORD:-devpassword}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-devroot}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    # AUCUN "ports:" ici. La base n'est joignable que depuis le reseau
+    # interne de Docker, jamais depuis l'exterieur de la machine.
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  catalog-service:
+    build: ./catalog-service
+    environment:
+      # LA bascule de base de donnees se joue sur cette seule ligne.
+      # Passer "mysql" a "mongo" changera d'adaptateur, sans recompiler
+      # ni modifier une ligne de logique metier.
+      SPRING_PROFILES_ACTIVE: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: linux_distro_reco
+      DB_USER: linuxreco
+      DB_PASSWORD: ${DB_PASSWORD:-devpassword}
+    ports:
+      - "8081:8081"
+    depends_on:
+      mysql:
+        # On attend que la base reponde VRAIMENT, et pas seulement que
+        # son conteneur soit lance. Sans cela, Flyway demarrerait trop
+        # tot et le service echouerait.
+        condition: service_healthy
+
+  recommendation-service:
+    build: ./recommendation-service
+    environment:
+      # Docker resout "catalog-service" en adresse du conteneur :
+      # les deux services communiquent par le reseau, comme ils le
+      # feraient sur deux machines distinctes.
+      CATALOG_BASE_URL: http://catalog-service:8081
+      CORS_ALLOWED_ORIGIN: http://localhost:5173
+    ports:
+      - "8082:8082"
+    depends_on:
+      - catalog-service
+
+volumes:
+  mysql-data:
