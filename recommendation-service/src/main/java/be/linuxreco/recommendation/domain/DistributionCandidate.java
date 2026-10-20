@@ -4,9 +4,9 @@ import java.util.Map;
 
 // une distribution telle que catalog-service la renvoie, vue du moteur.
 //
-// classe separee de celle du catalogue : les deux services sont
-// independants, chacun a son propre modele. si le catalogue change la
-// forme de sa reponse, on adapte la traduction dans CatalogClient sans
+// classe séparéee de celle du catalogue : les deux services sont
+// indépendants, chacun aà son propre modele et si le catalogue change la
+// forme de sa réponse, on adapte la traduction dans CatalogClient sans
 // toucher a l'algorithme
 public record DistributionCandidate(
 

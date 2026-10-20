@@ -1,0 +1,51 @@
+# ---------------------------------------------------------------------
+# Configuration de catalog-service
+#
+# AUCUN SECRET DANS CE FICHIER. Il est commite dans Git, donc tout mot
+# de passe ecrit ici serait public et definitivement compromis, meme
+# supprime ensuite. La syntaxe ${VARIABLE:valeur_par_defaut} lit la
+# variable d'environnement et retombe sur la valeur par defaut en
+# developpement local.
+# ---------------------------------------------------------------------
+spring:
+  application:
+    name: catalog-service
+
+  # Profil actif : c'est CE REGLAGE qui decide quel adaptateur de base
+  # de donnees Spring instancie. Le passer a "mongo" suffira a changer
+  # de base, sans recompiler ni modifier une ligne de logique metier.
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:mysql}
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:linux_distro_reco}
+    username: ${DB_USER:linuxreco}
+    password: ${DB_PASSWORD:changeme}
+
+  jpa:
+    hibernate:
+      # JAMAIS "update" ni "create" : c'est Flyway qui est responsable
+      # du schema. Laisser Hibernate le modifier produirait deux
+      # sources de verite concurrentes et des bases divergentes.
+      ddl-auto: validate
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    # Le schema doit exister ; Flyway cree les tables, pas la base.
+    baseline-on-migrate: false
+
+server:
+  port: ${SERVER_PORT:8081}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # UNIQUEMENT health. Exposer "*" publierait aussi /actuator/env,
+        # qui revelerait toute la configuration, mots de passe compris.
+        include: health
+  endpoint:
+    health:
+      show-details: never

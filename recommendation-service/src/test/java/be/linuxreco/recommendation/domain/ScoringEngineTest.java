@@ -16,8 +16,8 @@ import org.junit.jupiter.api.Test;
  * couvrant une fonctionnalite majeure d'un des services".
  *
  * Il ne demarre ni Spring, ni base, ni reseau : le moteur est une
- * fonction pure, memes entrees -> memes sorties. C'est la justification
- * concrete du caractere SANS ETAT de recommendation-service.
+ * fonction pure, donc mêmes entrées vers des mêmes sorties. C'est la justification
+ * concrète du caractère sans état de recommendation-service
  */
 class ScoringEngineTest {
 

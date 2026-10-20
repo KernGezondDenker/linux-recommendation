@@ -1,0 +1,29 @@
+# ---------------------------------------------------------------------
+# Configuration de recommendation-service
+#
+# Ce service est SANS ETAT et n'a aucune base de donnees : ni
+# datasource, ni Flyway, ni profil mysql/mongo.
+# ---------------------------------------------------------------------
+spring:
+  application:
+    name: recommendation-service
+
+catalog:
+  # En local : localhost. Dans docker-compose : le nom du service, que
+  # Docker resout en adresse du conteneur.
+  base-url: ${CATALOG_BASE_URL:http://localhost:8081}
+
+cors:
+  allowed-origin: ${CORS_ALLOWED_ORIGIN:http://localhost:5173}
+
+server:
+  port: ${SERVER_PORT:8082}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
