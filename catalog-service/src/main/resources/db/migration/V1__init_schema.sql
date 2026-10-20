@@ -131,7 +131,7 @@ CREATE TABLE application_alternative (
 
     application_id BIGINT       NOT NULL,
     alternative_id BIGINT       NOT NULL,
-    note           VARCHAR(255) NULL,d
+    note           VARCHAR(255) NULL,
     CONSTRAINT pk_application_alternative
         PRIMARY KEY (application_id, alternative_id),
 
