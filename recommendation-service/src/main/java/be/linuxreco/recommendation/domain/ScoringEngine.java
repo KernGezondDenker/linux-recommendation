@@ -139,26 +139,26 @@ public final class ScoringEngine
         return new Scored(d, raw, toFinalScore(raw), List.copyOf(reasons));
     }
 
-    // LE POINT D'ENTREE : filtre, classe, renvoie les trois meilleurs
+    // c'est le point d'entrée: filtre, classe, renvoie les trois meilleurs
     public static List<Scored> recommend(List<DistributionCandidate> candidates, UserProfile profile) {
 
         // phase 1
         List<DistributionCandidate> eligible = candidates.stream().filter(d -> isCompatible(d, profile)).toList();
 
-        //  une reponse est TOUJOURS produite.
-        // si rien ne passe, on retient les trois plus legeres, celles dont
+        //  une réponse est TOUJOURS produite.
+        // si rien ne passe, on retient les trois plus légères, celles dont
         // la machine est la moins loin de satisfaire les exigences.
-        // attention : ce tri ne determine que la SELECTION. les trois
-        // retenues sont ensuite classees par score comme les autres, plus
-        // bas. on montre donc, parmi les plus accessibles, celle qui
+        // attention : ce tri ne determine que la SELECTION, les trois
+        // retenues sont ensuite classées par score comme les autres, plus
+        // bas. On montre donc, parmi les plus accessibles, celle qui
         // correspond le mieux au profil. c'est au front d'afficher
         // l'avertissement
         if (eligible.isEmpty()) 
         {
                     eligible = candidates.stream()
-                    // une exigence absente est traitee comme la plus
-                    // permissive (0) : on ne peut pas reprocher a une
-                    // distro un seuil que l'editeur n'annonce pas
+                    // une exigence absente est traitée comme la plus
+                    // permissive (0) : on ne peut pas reprocher à une
+                    // distro un seuil que l'éditeur n'annonce pas
                     .sorted(Comparator.comparingInt(c -> c.minRamMb() == null ? 0 : c.minRamMb()))
                     .limit(MAX_RESULTS)
                     .toList();

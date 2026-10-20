@@ -1,16 +1,16 @@
 -- =====================================================================
 -- V2__seed_reference_data.sql
 --
--- Donnees de REFERENCE. Elles font partie du schema et suivent le meme
--- cycle de vie : versionnees dans Git, appliquees une seule fois,
--- jamais modifiees une fois jouees.
+-- Donnees de REFERENCE. Elles font partie du schema et suivent le même
+-- cycle de vie : versionnées dans Git, appliquées une seule fois,
+-- jamais modifiées une fois jouées.
 --
--- A distinguer des donnees de TEST, qui n'ont rien a faire ici.
+-- A distinguer des données de TEST, qui n'ont rien a faire ici.
 --
--- TOUTES les valeurs materielles proviennent du site ou de la
--- documentation officielle de chaque projet. Les URL sont consignees
--- dans docs/registre-des-attributions. Une exigence non publiee par
--- l'editeur vaut NULL : aucune valeur n'est inventee, et les
+-- TOUTES les valeurs matérielles proviennent du site ou de la
+-- documentation officielle de chaque projet. Les URL sont consignées
+-- dans docs/registre-des-attributions. Une exigence non publiée par
+-- l'editeur vaut NULL: aucune valeur n'est inventée, et les
 -- temoignages de forums ne sont pas des sources.
 -- =====================================================================
 
@@ -30,11 +30,11 @@ INSERT INTO use_case (code, label) VALUES
 -- ---------------------------------------------------------------------
 -- Les cinq distributions retenues.
 --
--- Vingt-et-une distributions ont ete relevees ; cinq ont ete retenues
--- pour cette premiere version, choisies de maniere a couvrir
--- l'ensemble des axes du questionnaire et l'etendue des niveaux de
--- difficulte. Les seize autres sont documentees dans le relevé et
--- seront integrees ulterieurement.
+-- 21 distributions ont été relevées ; cinq ont été retenues
+-- pour cette première version, choisies de manière à couvrir
+-- l'ensemble des axes du questionnaire et l'étendue des niveaux de
+-- difficulté. Les seize autres sont documentées dans le relevé et
+-- seront integrées ulterieurement.
 -- ---------------------------------------------------------------------
 INSERT INTO distribution (
     name, version, description, website_url, desktop_environment,
@@ -43,10 +43,10 @@ INSERT INTO distribution (
     difficulty_level, ships_proprietary_drivers, supports_32bit
 ) VALUES
 
--- Cinnamon. Concue pour fonctionner immediatement apres installation.
--- Les pilotes proprietaires s'installent facilement mais ne sont PAS
+-- Cinnamon. Concue pour fonctionner immediatement après installation.
+-- Les pilotes propriétaires s'installent facilement mais ne sont PAS
 -- fournis par defaut : ships_proprietary_drivers vaut donc FALSE.
--- Frequence et nombre de coeurs non publies.
+-- Frequence et nombre de coeurs non publiés.
 ('Linux Mint', '22.3 Zena',
  'Systeme concu pour fonctionner immediatement, livre avec les applications dont la plupart des gens ont besoin.',
  'https://linuxmint.com/', 'Cinnamon',
@@ -54,7 +54,7 @@ INSERT INTO distribution (
  1, FALSE, FALSE),
 
 -- KDE. Oriente production audio, video, graphisme et photographie.
--- Seule des cinq a publier un nombre de coeurs minimal.
+-- Seule des cinq à publier un nombre de coeurs minimal.
 ('Ubuntu Studio', '26.04.1',
  'Systeme destine aux creatifs : production audio, production video, graphisme, photographie et publication assistee par ordinateur.',
  'https://ubuntustudio.org/', 'KDE Plasma',
@@ -62,7 +62,7 @@ INSERT INTO distribution (
  2, TRUE, FALSE),
 
 -- GNOME. Aucune RAM minimale publiee : la colonne vaut NULL, et le
--- moteur ne filtre pas sur ce critere pour cette distribution.
+-- moteur ne filtre pas sur ce critère pour cette distribution.
 ('Fedora Workstation', '44',
  'Bureau GNOME soigne, bati sur les technologies libres les plus recentes.',
  'https://fedoraproject.org/workstation/', 'GNOME',
@@ -77,8 +77,8 @@ INSERT INTO distribution (
  3072, 8192, 30, 50, NULL, NULL,
  3, TRUE, FALSE),
 
--- Edition Education de Zorin OS, destinee aux enseignants et aux
--- eleves, avec des outils pedagogiques integres.
+-- Edition Education de Zorin OS, destinée aux enseignants et aux
+-- élèves, avec des outils pedagogiques integres.
 ('Zorin OS Education', '18.1',
  'Edition destinee aux enseignants et aux eleves, livree avec des outils pedagogiques integres.',
  'https://zorin.com/os/download/18/education/', 'GNOME',
@@ -95,7 +95,7 @@ INSERT INTO distribution (
 --
 -- La jointure sur les NOMS plutot que sur des identifiants ecrits en
 -- dur rend le script independant de l'ordre des insertions
--- precedentes : il donnerait le meme resultat si les distributions
+-- precedentes : il donnerait le même résultat si les distributions
 -- avaient ete inserees dans un autre ordre.
 -- ---------------------------------------------------------------------
 INSERT INTO distribution_use_case (distribution_id, use_case_id, weight)
@@ -136,7 +136,7 @@ JOIN use_case     u ON u.code = m.uc;
 
 
 -- ---------------------------------------------------------------------
--- Applications : logiciels Windows et leurs equivalents Linux, ainsi
+-- Applications: logiciels Windows et leurs équivalents Linux, ainsi
 -- que les pilotes de peripheriques.
 --
 -- 'linux_availability' porte la REGLE GENERALE :
@@ -145,7 +145,7 @@ JOIN use_case     u ON u.code = m.uc;
 --   NONE            -> aucun equivalent natif
 -- ---------------------------------------------------------------------
 INSERT INTO application (name, category, linux_availability) VALUES
-    -- Logiciels Windows sans equivalent natif : references uniquement
+    -- Logiciels Windows sans équivalent natif: references uniquement
     -- pour pouvoir proposer une alternative.
     ('Microsoft Word',       'Bureautique', 'NONE'),
     ('Microsoft Excel',      'Bureautique', 'NONE'),
@@ -162,7 +162,7 @@ INSERT INTO application (name, category, linux_availability) VALUES
     -- CAS DISTRO_SPECIFIC : un pilote proprietaire. Sa disponibilite
     -- et surtout sa METHODE D'INSTALLATION varient d'une distribution a
     -- l'autre, selon la politique de chacune sur les composants non
-    -- libres. C'est precisement le cas souleve par le chargé de cours.
+    -- libres. C'est précisement le cas souleve par le chargé de cours.
     ('Pilote graphique NVIDIA proprietaire', 'Pilote', 'DISTRO_SPECIFIC');
 
 
@@ -191,12 +191,12 @@ JOIN application alt ON alt.name = m.a;
 -- ---------------------------------------------------------------------
 -- application_availability : LES EXCEPTIONS, et elles seules.
 --
--- Aucune ligne pour les applications ALL_DISTROS : leur regle generale
+-- Aucune ligne pour les applications ALL_DISTROS : leur règle générale
 -- suffit. Seul le pilote NVIDIA, declare DISTRO_SPECIFIC, a besoin
--- d'etre precise distribution par distribution.
+-- d'être precise distribution par distribution.
 --
 -- Une table exhaustive aurait exige 10 applications x 5 distributions
--- = 50 lignes, dont 45 auraient repete la meme information.
+-- = 50 lignes, dont 45 auraient repete la même information.
 --
 -- 'install_method' est ce qui interesse reellement l'utilisateur : le
 -- pilote est disponible partout, mais l'obtenir demande un clic chez
