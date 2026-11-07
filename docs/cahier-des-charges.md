@@ -521,7 +521,7 @@ Le service est déployé sur une offre d'essai gratuite, sans haute disponibilit
 
 ### 8.1 Cadre de travail
 
-Sprints de deux semaines, suivis dans **GitHub Projects**. Chaque récit utilisateur devient une *issue* estimée et rattachée à un sprint. Une revue en fin de sprint dresse l'état d'avancement et réajuste le périmètre restant.
+Sprints de une semaine, suivis dans **Taïga.io** : https://tree.taiga.io/project/martinbuchet-linuxrecommendation . Chaque user story devient une *issue* estimée et rattachée à un sprint. Une revue en fin de sprint dresse l'état d'avancement et réajuste le périmètre restant.
 
 ### 8.2 Règles de contribution
 
