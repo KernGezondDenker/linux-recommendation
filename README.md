@@ -1,8 +1,8 @@
 LinuxRecommendation
 
-Application web qui filtre un catalogue documente de distributions
-Linux selon la configuration materielle et le profil de l'utilisateur,
-classe les resultats selon des ponderations publiées, et justifie
+C'est une application web qui filtre un catalogue contenant des distributions
+Linux selon la configuration matérielle et le profil de l'utilisateur,
+classe les résultats selon des pondérations publiées, et justifie
 chaque classement.
 
 Projet d'integration de developpement pour un Bachelier en informatique de
