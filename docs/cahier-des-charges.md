@@ -3,7 +3,7 @@
 **Section** : Bachelier en informatique de gestion
 **Année académique** : 2026-2027
 **Équipe** : 2 étudiants
-**Dépôt** : `https://github.com/<organisation>/linux-recommendation`
+**Dépôt** : `https://github.com/KernGezondDenker/linux-recommendation`
 
 | Version | Objet de la révision |
 |---|---|
@@ -11,6 +11,7 @@
 | 2.0 | Repositionnement du périmètre ; correction de la formule de score ; définition des cas d'usage ; ajout de la grille de codage et de l'analyse de sensibilité |
 | 2.1 | Critère des pilotes graphiques exprimé en table de correspondance ; précision du caractère binaire du critère de confort matériel |
 | 2.2 | Axe `LEARNING` remplacé par `EDUCATION` (test de non-redondance) ; filtre processeur porté sur la fréquence et non sur un score de référence ; exigences non publiées rendues nullables |
+| 2.3 | Suppression du catalogue de composants (`cpu`, `gpu`) au profit de la saisie directe des caractéristiques ; mise en conformité du document avec le code livré : filtre processeur, langage d'interface, coefficients du moteur, exemple chiffré ; dette d'implémentation de RG-01 consignée |
 
 **Documents associés**
 
@@ -43,7 +44,7 @@ La formulation est délibérément mesurée. L'application ne prétend pas « sa
 
 | # | Fonctionnalité |
 |---|---|
-| F1 | Saisie manuelle de la configuration matérielle (listes de composants issues du catalogue) |
+| F1 | Saisie manuelle des caractéristiques matérielles (mémoire, stockage, fréquence et nombre de cœurs du processeur, architecture, présence d'une carte graphique à pilote propriétaire) |
 | F2 | Import de la configuration par copier-coller d'un rapport DxDiag, avec tutoriel d'accès |
 | F3 | Questionnaire de profilage (usage, fréquence, compétences, logiciels) |
 | F4 | Moteur de recommandation retournant un classement motivé |
@@ -51,7 +52,7 @@ La formulation est délibérément mesurée. L'application ne prétend pas « sa
 | F6 | Répertoire des logiciels Windows et de leurs alternatives Linux |
 | F7 | Historisation anonyme des recommandations générées |
 
-**Explicitement exclu** (hors périmètre assumé, voir §11) : comptes utilisateurs, authentification, espace personnel, téléchargement des images ISO, support multilingue, publicité ou monétisation, application mobile native.
+**Explicitement exclu** (hors périmètre assumé, voir §11) : comptes utilisateurs, authentification, espace personnel, téléchargement des images ISO, support multilingue, publicité ou monétisation, application mobile native, **catalogue de modèles de processeurs et de cartes graphiques** (voir §6.2).
 
 ### 1.4 Public cible
 
@@ -79,7 +80,7 @@ Le choix du domaine fonctionnel reste par ailleurs, dans le cadre de cette unit�
 
 | ID | En tant que… | je veux… | afin de… |
 |---|---|---|---|
-| US-01 | visiteur | sélectionner mes composants dans des listes | décrire ma machine sans connaissance technique |
+| US-01 | visiteur | décrire les caractéristiques de ma machine sans chercher un modèle exact | renseigner ma configuration sans connaissance technique |
 | US-02 | visiteur | coller mon rapport DxDiag | éviter une saisie fastidieuse |
 | US-03 | visiteur | savoir où trouver ce DxDiag | pouvoir utiliser US-02 |
 | US-04 | visiteur | répondre à un questionnaire court | obtenir un conseil adapté à mon usage réel |
@@ -96,6 +97,8 @@ Le choix du domaine fonctionnel reste par ailleurs, dans le cadre de cette unit�
 - **RG-04** — Le rapport DxDiag n'est jamais stocké. Seules les valeurs extraites sont conservées le temps du traitement.
 - **RG-05** — Aucune donnée nominative n'est collectée.
 
+**Dette identifiée sur RG-01.** La règle n'est à ce jour que partiellement implémentée. La sélection de repli fonctionne — `ScoringEngine` retient les trois distributions dont la mémoire minimale est la plus basse — mais la réponse de l'API ne porte **aucun indicateur** signalant que ce repli s'est déclenché. L'interface est donc dans l'incapacité d'afficher l'avertissement exigé. La correction consiste à ajouter un booléen à la réponse du service de recommandation ; elle est planifiée au sprint 5.
+
 ### 2.3 Spécification du moteur de recommandation
 
 Aucune distribution ne possède de score prédéfini. Les points sont calculés à chaque demande, par confrontation des caractéristiques stockées aux réponses de l'utilisateur. Une même distribution obtient donc des scores très différents selon le profil.
@@ -103,12 +106,14 @@ Aucune distribution ne possède de score prédéfini. Les points sont calculés 
 **Phase 1 — Filtres éliminatoires.** Une distribution est écartée si la machine ne satisfait pas ses exigences minimales :
 
 ```
-ram_utilisateur_mb      >= distribution.min_ram_mb
-stockage_utilisateur_gb >= distribution.min_storage_gb
-score_cpu_utilisateur   >= distribution.min_cpu_score
-coeurs_utilisateur      >= distribution.min_cpu_cores
+ram_utilisateur_mb        >= distribution.min_ram_mb
+stockage_utilisateur_gb   >= distribution.min_storage_gb
+frequence_utilisateur_mhz >= distribution.min_cpu_mhz
+coeurs_utilisateur        >= distribution.min_cpu_cores
 si architecture 32 bits : distribution.supports_32bit = true
 ```
+
+**Exigences non publiées.** Certains projets ne documentent pas toutes leurs exigences minimales — Fedora Workstation ne publie aucune mémoire minimale, plusieurs distributions ne mentionnent ni fréquence ni nombre de cœurs. Ces colonnes sont donc nullables, et **une exigence inconnue n'élimine jamais** : `NULL` signifie « non documenté », non « zéro ». Le choix est assumé ; l'option inverse, écarter en cas de doute, aurait vidé le catalogue.
 
 **Phase 2 — Score pondéré** sur les distributions survivantes :
 
@@ -119,7 +124,9 @@ si architecture 32 bits : distribution.supports_32bit = true
 | Confort matériel | `+10` si RAM ≥ `recommended_ram_mb` | 0 à +10 |
 | Pilotes graphiques | Table de correspondance ci-dessous | −15 à +10 |
 
-**Critère du confort matériel — valeurs binaires.** Ce critère ne prend que deux valeurs, 0 ou +10 ; aucune valeur intermédiaire n'existe. Une machine dont la mémoire se situe entre le minimum et le recommandé obtient 0. L'effet de seuil est assumé : ce critère ne pèse que 10 points sur une étendue de 115, et lisser la transition compliquerait la formule pour un gain négligeable.
+**Critère de l'écart de compétence — symétrie assumée.** La valeur absolue pénalise l'écart dans les deux sens : une distribution plus facile que le niveau déclaré est pénalisée autant qu'une distribution plus difficile du même écart. Le critère mesure donc l'**adéquation** et non la seule difficulté. Le meilleur résultat possible est zéro, atteint lorsque la difficulté égale exactement le niveau déclaré ; il n'existe aucun bonus sur ce critère. Un traitement asymétrique — `max(0, difficulté − niveau)`, qui ne pénaliserait que le dépassement — a été envisagé et écarté : il reviendrait à considérer qu'aucune distribution n'est jamais trop simple, ce que l'intention d'apprentissage évoquée au §11 contredit.
+
+**Critère du confort matériel — valeurs binaires.** Ce critère ne prend que deux valeurs, 0 ou +10 ; aucune valeur intermédiaire n'existe. Une machine dont la mémoire se situe entre le minimum et le recommandé obtient 0. L'effet de seuil est assumé : ce critère ne pèse que 10 points sur une étendue de 115, et lisser la transition compliquerait la formule pour un gain négligeable. Lorsque la mémoire recommandée n'est pas publiée, le critère vaut 0 : on ne peut pas affirmer qu'une machine dépasse un seuil qui n'existe pas.
 
 **Critère des pilotes graphiques — table de correspondance.** Le critère est exprimé sous forme de table plutôt qu'en prose, afin qu'aucune combinaison ne reste indéfinie.
 
@@ -134,11 +141,11 @@ Carte requérant un pilote propriétaire (NVIDIA) :
 
 Justification : pour un utilisateur débutant, la fourniture du pilote fait la différence entre un système immédiatement fonctionnel et un abandon ; pour un utilisateur autonome, il s'agit d'une commodité mineure, et son absence ne constitue pas un obstacle. Une formulation en prose laissait le cas d'un niveau intermédiaire avec pilote non fourni sans valeur définie, et accordait le bonus maximal à un utilisateur expert que cette commodité n'intéresse pas.
 
-Chaque case de cette table fera l'objet d'un test unitaire dédié, garantissant qu'aucune situation n'est omise.
+Chaque case de cette table fait l'objet d'un test unitaire dédié, garantissant qu'aucune situation n'est omise.
 
 Les amplitudes constituent le véritable choix d'analyse. Usage et compétence pèsent à égalité : ce sont les deux dimensions que le questionnaire existe pour capter. Les pilotes viennent ensuite, leur effet étant réel mais limité aux possesseurs de matériel concerné. Le confort matériel ferme la marche, le matériel ne discriminant presque rien sur une machine récente — ce que les filtres de la phase 1 traitent déjà.
 
-Le critère d'usage retient une **moyenne** et non une somme : une somme ferait croître le score avec le simple nombre de cases cochées, un utilisateur sélectionnant quatre usages obtenant jusqu'à 160 points sur ce seul critère et écrasant tous les autres.
+Le critère d'usage retient une **moyenne** et non une somme : une somme ferait croître le score avec le simple nombre de cases cochées, un utilisateur sélectionnant cinq usages obtenant jusqu'à 200 points sur ce seul critère et écrasant tous les autres.
 
 Il applique en outre une **normalisation min-max** plutôt qu'une multiplication par un coefficient. La note minimale de l'échelle valant 1 et non 0, un coefficient multiplicatif attribuerait un plancher de points à une distribution jugée inadaptée à tous les usages cochés, et réduirait l'étendue effective du critère. La forme générale retenue est :
 
@@ -148,26 +155,36 @@ Il applique en outre une **normalisation min-max** plutôt qu'une multiplication
 
 Elle reste valable si l'étendue de l'échelle de notation venait à changer.
 
+Deux cas limites sont traités explicitement dans le code : aucun usage coché rend 0 sur ce critère, et un code d'usage absent de la matrice compte pour le poids minimal — un trou de documentation doit peser **contre** la distribution plutôt que passer inaperçu.
+
 **Phase 3 — Normalisation et restitution.** Le score brut s'étend de −55 à +60, soit une étendue de 115 points :
 
 ```
 score_final = (score_brut + 55) / 115 × 100
 ```
 
-Les trois meilleurs résultats sont retournés, accompagnés de la liste des critères ayant effectivement contribué à leur score (RG-03).
+Cette transformation est affine et croissante : elle **ne modifie aucun classement** et sert uniquement à l'affichage, un score négatif n'ayant pas de sens pour l'utilisateur. Le tri est d'ailleurs opéré sur le score brut.
 
-**Exemple de déroulement.** Utilisateur déclarant 8192 Mo de RAM, un GPU NVIDIA, un niveau de compétence de 2, et cochant « bureautique » et « jeux vidéo » :
+Les trois meilleurs résultats sont retournés, accompagnés de la liste des critères ayant effectivement contribué à leur score (RG-03). Un critère nul ne produit aucun motif.
 
-| | Linux Mint | Pop!\_OS | Arch Linux |
-|---|---|---|---|
-| Usage | (4−1)/4 × 40 = +30 | (4,5−1)/4 × 40 = +35 | (3−1)/4 × 40 = +20 |
-| Compétence | 0 | 0 | −30 |
-| Confort matériel | +10 | +10 | +10 |
-| Pilotes | +10 | +10 | −15 |
-| Score brut | 50 | 55 | −15 |
-| **Score final** | **91** | **96** | **35** |
+**Exemple de déroulement.** Utilisateur déclarant 8192 Mo de RAM, 256 Go de stockage, un processeur à 2400 MHz et 4 cœurs, une carte NVIDIA, un niveau de compétence de 2, et cochant « bureautique » et « création multimédia ». Les cinq distributions du catalogue passent la phase 1.
 
-Les coefficients sont externalisés dans un fichier de configuration, modifiables sans recompilation.
+| | Ubuntu Studio | CachyOS | Zorin OS Education | Linux Mint | Fedora Workstation |
+|---|---|---|---|---|---|
+| Usage | (4,5−1)/4 × 40 = **+35** | (4−1)/4 × 40 = **+30** | (3,5−1)/4 × 40 = **+25** | (4−1)/4 × 40 = **+30** | (3−1)/4 × 40 = **+20** |
+| Compétence | −10 × \|2−2\| = **0** | −10 × \|3−2\| = **−10** | −10 × \|1−2\| = **−10** | −10 × \|1−2\| = **−10** | −10 × \|3−2\| = **−10** |
+| Confort matériel | 0 *(recommandé : 16384)* | **+10** | 0 *(non publié)* | **+10** | **+10** |
+| Pilotes | **+10** | **+10** | **+10** | **−15** | **−15** |
+| Score brut | **45** | **40** | **25** | **15** | **5** |
+| **Score final** | **87** | **83** | **70** | **61** | **52** |
+
+Les trois résultats retournés sont donc Ubuntu Studio, CachyOS et Zorin OS Education.
+
+**Un résultat contre-intuitif, et ce qu'il révèle.** Linux Mint, réputée la plus accessible aux débutants, n'arrive que quatrième pour un profil de niveau 2. La cause est isolable : elle perd 15 points parce qu'elle **ne fournit pas** les pilotes propriétaires, alors que le relevé du catalogue note qu'ils s'installent aisément depuis son gestionnaire de pilotes. Le critère ne distingue que deux états — fourni, non fourni — là où la réalité en compte trois : fourni d'origine, installable en quelques clics, installable en ligne de commande. Remplacer le booléen `ships_proprietary_drivers` par une échelle à trois niveaux constitue l'amélioration la plus rentable identifiée à ce stade. Le résultat n'est pas tenu pour une erreur : « facile à installer » n'est pas « déjà installé », et un débutant équipé d'une carte NVIDIA rencontrera bien un affichage dégradé au premier démarrage.
+
+**Analyse de sensibilité.** Le même profil déclaré au niveau 3 produit un classement différent : CachyOS passe en tête (87), suivie d'Ubuntu Studio et de Fedora Workstation à égalité (74). Le niveau déclaré est donc la question la plus déterminante du questionnaire — il intervient dans deux critères sur quatre. L'égalité à 74 points n'est arbitrée par aucune règle explicite : le tri de Java étant stable, l'ordre du catalogue tranche. Cette dette est consignée.
+
+Les coefficients du moteur (`USAGE_AMPLITUDE`, `SKILL_PENALTY_PER_LEVEL`, `COMFORT_BONUS`, les bornes de normalisation) sont déclarés en constantes nommées dans `ScoringEngine`, regroupées en tête de classe. Leur externalisation dans un fichier de configuration est identifiée comme amélioration (§11) mais n'est pas implémentée : la modification d'un coefficient exige aujourd'hui une recompilation.
 
 ### 2.4 Cas d'usage du questionnaire
 
@@ -183,7 +200,7 @@ Les cinq entrées de la table `use_case` :
 
 Trois tests ont présidé à cette sélection, détaillés dans `docs/grille-de-codage.md` : chaque cas d'usage doit produire des notes réellement différentes selon les distributions ; chaque distribution du catalogue doit pouvoir l'emporter sur au moins un cas d'usage ; et aucun axe ne doit mesurer ce qu'un autre critère du score mesure déjà.
 
-Ce troisième test a conduit a écarter un axe `LEARNING` (« apprendre et maîtriser Linux ») initialement retenu : une distribution adaptée a l'apprentissage du système est par construction une distribution exigeante, donc a `difficulty_level` élevé. L'axe aurait compté la difficulté une seconde fois. Le premier codage du catalogue l'a confirmé, les notes attribuées suivant la vocation pédagogique et non l'exigence technique. Il a été remplacé par `EDUCATION`, qui décrit ce qui était reellement mesuré.
+Ce troisième test a conduit à écarter un axe `LEARNING` (« apprendre et maîtriser Linux ») initialement retenu : une distribution adaptée à l'apprentissage du système est par construction une distribution exigeante, donc à `difficulty_level` élevé. L'axe aurait compté la difficulté une seconde fois. Le premier codage du catalogue l'a confirmé, les notes attribuées suivant la vocation pédagogique et non l'exigence technique. Il a été remplacé par `EDUCATION`, qui décrit ce qui était réellement mesuré.
 
 Un sixième axe, `LEGACY_HARDWARE`, reste en attente de décision : son intérêt et le risque de redondance avec les filtres de la phase 1 sont documentés dans la grille de codage.
 
@@ -245,7 +262,7 @@ Trois rôles distincts composent la couche d'interface : **React** est la biblio
 
 ### 4.2 Décomposition en micro-services
 
-**`catalog-service`** — Détient le catalogue et **l'exclusivité de l'accès à la base de données**. Il expose les composants matériels, les distributions, les cas d'usage, les applications et leurs alternatives, et persiste les sessions de recommandation.
+**`catalog-service`** — Détient le catalogue et **l'exclusivité de l'accès à la base de données**. Il expose les distributions, les cas d'usage, les applications et leurs alternatives, et persiste les sessions de recommandation.
 
 **`recommendation-service`** — Applique l'algorithme de scoring et analyse les rapports DxDiag. Il est **entièrement sans état** : il ne conserve rien en mémoire entre deux requêtes, chaque appel contenant l'intégralité des données nécessaires. Il interroge `catalog-service` en HTTP et ne possède aucune connexion à la base.
 
@@ -261,8 +278,6 @@ Les deux services sont empaquetés séparément, versionnés séparément et peu
 
 | Méthode | Route | Rôle |
 |---|---|---|
-| GET | `/api/v1/cpus` | Catalogue des processeurs |
-| GET | `/api/v1/gpus` | Catalogue des cartes graphiques |
 | GET | `/api/v1/distributions` | Distributions et leurs exigences |
 | GET | `/api/v1/use-cases` | Cas d'usage du questionnaire |
 | GET | `/api/v1/applications` | Logiciels référencés |
@@ -302,7 +317,7 @@ La route `/actuator/health`, fournie par le module Spring Boot Actuator, renvoie
 | Framework applicatif | Spring Boot 3.x | Quarkus, Micronaut, Express | Recommandé ; intègre nativement Spring Data, Flyway, Actuator ; documentation abondante |
 | Gestion de build | Maven | Gradle | Configuration déclarative, plus lisible pour une première expérience |
 | Framework d'interface | React 18 + Vite | Angular, Vue, Svelte | Recommandé ; Vite offre un temps de démarrage très court en développement |
-| Langage d'interface | TypeScript | JavaScript | Le typage détecte au build les erreurs de structure des réponses d'API |
+| Langage d'interface | JavaScript (JSX) | TypeScript | L'équipe découvre React ; superposer l'apprentissage d'un système de types à celui du framework aurait multiplié les obstacles sur un périmètre d'interface restreint. Le passage à TypeScript est identifié comme amélioration (§11) |
 | Base relationnelle | MySQL 8 | PostgreSQL, MariaDB | SQL conseillé ; modèle fortement relationnel ; outillage graphique accessible |
 | Base alternative | MongoDB 7 | Redis, PostgreSQL | Paradigme radicalement différent : c'est ce contraste qui **prouve** l'indépendance de l'application vis-à-vis du stockage |
 | Migrations | Flyway | Liquibase | Explicitement cité dans les consignes ; migrations en SQL pur |
@@ -357,8 +372,8 @@ La formulation (b) s'obtient en trois éléments : une classe décrivant l'objet
 ```
 catalog-service/src/main/java/…/
 ├── domain/                 modèle métier — classes ordinaires, sans annotation
-│   ├── model/              Distribution, Cpu, Gpu, Application
-│   └── port/               interfaces : DistributionRepository, CpuRepository…
+│   ├── model/              Distribution, Application
+│   └── port/               interfaces : DistributionRepository…
 ├── application/            services métier — ne dépendent que des interfaces
 └── infrastructure/
     ├── rest/               contrôleurs REST
@@ -426,31 +441,41 @@ Les données de référence — distributions, cas d'usage, applications — son
 | `distribution` | Distributions, exigences matérielles et attributs de profilage |
 | `use_case` | Cas d'usage proposés par le questionnaire (table de référence) |
 | `distribution_use_case` | Association N-N portant un poids de pertinence |
-| `cpu` | Catalogue des processeurs |
-| `gpu` | Catalogue des cartes graphiques |
 | `application` | Logiciels, Windows et Linux confondus |
 | `application_alternative` | Auto-relation N-N : logiciel → équivalent Linux |
+| `application_availability` | Disponibilité d'un logiciel sur une distribution donnée |
 | `recommendation_session` | Historisation anonyme des recommandations |
 
 ### 6.2 Décisions de conception
 
-**Valeurs numériques typées.** Toute donnée servant à un calcul est stockée dans un type entier, l'unité figurant dans le nom de la colonne (`min_ram_mb`, `min_storage_gb`). Un stockage textuel rendrait les comparaisons alphabétiques et donc fausses : `"512 Mo"` serait considéré comme supérieur à `"2 Go"`. Le formatage lisible relève de la couche d'interface.
+**Valeurs numériques typées.** Toute donnée servant à un calcul est stockée dans un type entier, l'unité figurant dans le nom de la colonne (`min_ram_mb`, `min_storage_gb`, `min_cpu_mhz`). Un stockage textuel rendrait les comparaisons alphabétiques et donc fausses : `"512 Mo"` serait considéré comme supérieur à `"2 Go"`. Le formatage lisible relève de la couche d'interface.
 
-**Absence de table pour la RAM et le stockage.** Seule la capacité influence la recommandation ; marque, type et fréquence n'ont aucun effet sur le choix d'une distribution. Ces valeurs sont saisies directement dans le formulaire ou extraites du DxDiag.
+**Absence de catalogue de composants.** Le projet ne comporte aucune table de processeurs, de cartes graphiques, de barrettes de mémoire ni de disques. Les caractéristiques nécessaires au calcul sont saisies directement dans le formulaire ou extraites du rapport DxDiag. Quatre motifs :
+
+- **Seules les caractéristiques comptent.** La recommandation dépend de la fréquence, du nombre de cœurs, de la capacité mémoire et de l'architecture — jamais du modèle. Deux processeurs de marques différentes aux mêmes caractéristiques produisent exactement le même résultat.
+- **Un catalogue de modèles vieillit immédiatement.** Il faudrait le tenir à jour à chaque génération de matériel, pour un bénéfice nul sur le classement. Le travail de documentation est mieux investi dans les distributions, où il est décisif.
+- **L'utilisateur connaît rarement son modèle exact.** Il connaît en revanche sa quantité de mémoire, et DxDiag comme les paramètres système lui donnent la fréquence et le nombre de cœurs.
+- **La carte graphique se réduit à une question binaire.** Ce qui discrimine les distributions n'est pas le modèle, mais la seule question : cette carte exige-t-elle un pilote propriétaire ? Une case à cocher suffit, et le critère correspondant (§2.3) ne lit rien d'autre.
+
+Cette décision a remplacé une première conception comportant des tables `cpu` et `gpu` avec un score de référence par processeur. Ce score aurait dû être attribué à la main, sans source officielle mobilisable, pour un gain de précision nul : le filtre porte désormais sur la fréquence publiée, qui est une donnée constatable.
 
 **Le poids est un attribut de relation.** `weight` qualifie le couple (distribution, cas d'usage) et non l'un des deux séparément : une distribution peut convenir remarquablement à la bureautique et médiocrement au jeu. Une donnée dépendant des deux extrémités d'une association appartient à la table d'association.
 
-**Alternatives logicielles modélisées par auto-relation.** Le besoin relie un logiciel à un autre logiciel (Word → LibreOffice Writer), non un logiciel à une distribution. Une table distribution ↔ application aurait été sans valeur : une application disponible sous Linux fonctionne sur la quasi-totalité des distributions.
+**Alternatives logicielles modélisées par auto-relation.** Le besoin relie un logiciel à un autre logiciel (Word → LibreOffice Writer), non un logiciel à une distribution.
+
+**Disponibilité par distribution.** La table `application_availability` traite le cas, soulevé lors de la présentation intermédiaire, d'un logiciel ou d'un pilote disponible sous Linux mais pas sur toutes les distributions. Un booléen `available_on_linux` porté par l'application seule ne pouvait pas l'exprimer.
 
 **Réponses du questionnaire en JSON.** La colonne `recommendation_session.answers` est de type `JSON`. Le questionnaire évoluera au fil des sprints ; figer chaque question en colonne imposerait une migration de schéma à chaque ajout, pour une donnée exploitée uniquement en analyse.
 
 **Codes et libellés distincts.** Les tables de référence portent un `code` stable, manipulé par le code Java, et un `label` affiché, susceptible d'évoluer. Comparer sur le libellé exposerait à une rupture silencieuse le jour d'une reformulation ; comparer sur l'identifiant technique produirait un code illisible et dépendant de l'ordre d'insertion.
 
+**Colonnes nullables pour les exigences non publiées.** Lorsqu'un projet ne documente pas une exigence minimale, la colonne vaut `NULL` et le filtre correspondant est neutralisé (§2.3). Ces colonnes sont donc déclarées `Integer` et non `int` côté Java : un `int` aurait silencieusement converti l'absence de donnée en zéro.
+
 **Actions référentielles explicites.** `CASCADE` lorsque l'enfant n'a pas d'existence propre sans son parent, `RESTRICT` sur les tables de référence pour empêcher une suppression accidentelle, `SET NULL` sur l'historique afin qu'une session conserve sa valeur de trace même si la distribution est retirée du catalogue.
 
 ### 6.3 Constitution du catalogue
 
-**Volumétrie visée** : une quinzaine de distributions documentées avec soin plutôt qu'une centaine renseignées approximativement.
+**Volumétrie visée** : une quinzaine de distributions documentées avec soin plutôt qu'une centaine renseignées approximativement. Cinq sont documentées à ce stade.
 
 **Critère de sélection** : le catalogue doit couvrir l'ensemble des axes des grilles d'évaluation — toute l'étendue des niveaux de difficulté, les deux politiques de pilotes graphiques, des distributions très légères comme des distributions exigeantes, et au moins une cible explicite par cas d'usage. Un catalogue composé uniquement de distributions grand public produirait des scores voisins et un moteur incapable de différencier les profils.
 
@@ -474,8 +499,9 @@ L'absence de publicité et de traçage écarte par ailleurs toute obligation de 
 |---|---|---|
 | Injection SQL | Paramètres d'API | Requêtes paramétrées via Spring Data ; aucune concaténation de chaîne dans une requête |
 | Injection XSS | Affichage des saisies | React échappe par défaut ; usage de `dangerouslySetInnerHTML` **proscrit** |
+| Valeurs d'entrée aberrantes | Formulaire | Contraintes `@Min` / `@Max` sur le contrat d'entrée, validées par `@Valid` avant tout traitement métier ; la validation du navigateur est un confort, celle du serveur la garantie |
 | Déni de service par charge utile | DxDiag volumineux | Limite de taille de requête (64 Ko) ; extraction par expressions régulières sur quelques champs ; aucun stockage du texte brut |
-| Fuite de secrets | Identifiants en dépôt | Secrets en variables d'environnement et GitHub Secrets ; `.gitignore` couvrant les fichiers locaux ; aucun mot de passe dans `application.yml` |
+| Fuite de secrets | Identifiants en dépôt | Secrets en variables d'environnement et GitHub Secrets ; `.gitignore` couvrant les fichiers locaux |
 | Requêtes inter-origines non maîtrisées | CORS | Origine du front autorisée nommément ; jamais `*` |
 | Exposition de la base | Réseau | MySQL et MongoDB sans port publié vers l'hôte ; joignables uniquement depuis le réseau interne Docker |
 | Élévation de privilèges en conteneur | Image Docker | Exécution sous utilisateur non privilégié ; image de base *slim* |
@@ -484,6 +510,8 @@ L'absence de publicité et de traçage écarte par ailleurs toute obligation de 
 | Ports d'administration exposés | Spring Actuator | Seule la sonde `health` est publiée |
 
 ### 7.3 Limites reconnues
+
+Le fichier `docker-compose.yml` versionné contient un mot de passe de base de données en clair, à titre de valeur par défaut de développement. Ce n'est pas un secret de production, mais sa présence sur un dépôt public est à relever : le déploiement s'appuiera sur des variables d'environnement alimentées par des GitHub Secrets, et cette valeur par défaut sera retirée avant la mise en ligne.
 
 Le service est déployé sur une offre d'essai gratuite, sans haute disponibilité ni sauvegarde. Aucune limitation de débit n'est implémentée ; en cas d'exposition publique prolongée, un limiteur de requêtes constituerait la première amélioration à apporter.
 
@@ -502,6 +530,7 @@ Sprints de deux semaines, suivis dans **GitHub Projects**. Chaque récit utilisa
 - Toute fusion vers `main` passe par une *pull request* relue par l'autre membre. Même à deux, la revue croisée détecte des erreurs et matérialise le travail d'équipe attendu par la grille.
 - La branche `main` est protégée : intégration continue verte obligatoire avant fusion.
 - Les commits sont répartis sur toute la durée du projet, jamais regroupés en fin de parcours.
+- Un fichier `.gitattributes` normalise les fins de ligne en LF dans le dépôt. Les deux postes de travail étant sous Windows, son absence produisait des différences fantômes sur des fichiers non modifiés.
 
 Le détail pratique — vocabulaire, commandes, format des messages, mécanisme des releases — figure en annexe B.
 
@@ -557,9 +586,9 @@ Déploiement par `docker-compose` sur une machine virtuelle issue d'une offre d'
 |---|---|---|
 | **1** | Cahier des charges, schéma, grille de codage, squelettes des projets, dépôt initialisé | Documents en dépôt, projets qui compilent |
 | **2** | `catalog-service` avec adaptateur JPA et Flyway ; chaîne CI ; **mise en ligne** | URL publique répondant sur `/actuator/health` |
-| **3** | Relevé des faits et codage du catalogue ; migration des données de référence ; premiers écrans React | Sélection manuelle des composants fonctionnelle, registre des attributions complété |
+| **3** | Relevé des faits et codage du catalogue ; migration des données de référence ; premiers écrans React | Saisie des caractéristiques matérielles fonctionnelle, registre des attributions complété |
 | **4** | `recommendation-service`, moteur de scoring, **tests unitaires** | Recommandation calculée de bout en bout |
-| **5** | Questionnaire, restitution motivée, historisation des sessions, **analyse de sensibilité** | Parcours utilisateur complet, robustesse du classement mesurée |
+| **5** | Questionnaire, restitution motivée, historisation des sessions, indicateur de repli RG-01, **analyse de sensibilité** | Parcours utilisateur complet, robustesse du classement mesurée |
 | **6** | **Adaptateur MongoDB**, parsing DxDiag, alternatives logicielles | Démonstration de la bascule de base |
 | **7** | Revue de sécurité, finalisation documentaire, préparation de la défense | Dossier complet |
 
@@ -571,9 +600,12 @@ Déploiement par `docker-compose` sur une machine virtuelle issue d'une offre d'
 
 Pistes identifiées mais délibérément écartées du périmètre :
 
+- Externalisation des coefficients du moteur dans un fichier de configuration, afin de les modifier sans recompilation
+- Échelle à trois niveaux pour la politique de pilotes graphiques, en remplacement du booléen actuel (voir §2.3)
+- Règle de départage explicite en cas d'égalité de score brut
+- Passage de l'interface à TypeScript
 - Comptes utilisateurs et historique personnel de recommandations
 - Détection matérielle automatisée sous Linux pour les utilisateurs déjà migrés
-- Enrichissement du catalogue par appel à une source de données externe de références matérielles
 - Pondérations ajustées statistiquement à partir des sessions historisées
 - Internationalisation (français / néerlandais / anglais), facilitée par la séparation `code` / `label`
 - Prise en compte de l'intention d'apprentissage, distincte du niveau déclaré : une question agissant sur la difficulté visée permettrait d'orienter vers une distribution plus exigeante un utilisateur souhaitant progresser (voir la limite assumée en §4.2 de la grille de codage)
@@ -597,7 +629,7 @@ Pistes identifiées mais délibérément écartées du périmètre :
 | Qualité des documents produits | Ce document, `docs/` |
 | Lisibilité du code | §5.3, §8.2 |
 | Respect des normes en vigueur | §3 (NF-04), §5.2, §8.2 |
-| Degré d'autonomie | §2.3, §6.3, §8.3 |
+| Degré d'autonomie | §2.3, §6.2, §6.3, §8.3 |
 
 ---
 
@@ -773,6 +805,7 @@ dist/
 *.local
 .idea/
 .vscode/settings.json
+docker-compose.override.yml
 ```
 
 **Un secret committé est un secret compromis, définitivement** : même supprimé par la suite, il reste consultable dans l'historique. Identifiants de base de données et jetons Docker Hub passent exclusivement par les variables d'environnement et les GitHub Secrets.
