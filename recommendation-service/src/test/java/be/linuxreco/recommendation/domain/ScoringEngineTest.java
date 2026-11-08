@@ -267,7 +267,7 @@ class ScoringEngineTest {
         void everyRecommendationCarriesItsReasons() {
             var result = ScoringEngine.score(popOs(), referenceProfile());
             assertThat(result.reasons()).isNotEmpty();
-            assertThat(result.reasons()).anyMatch(r -> r.contains("Pilotes graphiques inclus"));
+            assertThat(result.reasons()).anyMatch(r -> r.contains("pilotes graphiques inclus"));
         }
     }
 
