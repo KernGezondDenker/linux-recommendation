@@ -18,6 +18,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+          cache: maven
+          cache-dependency-path: recommendation-service/pom.xml
 
       - name: Lancer les tests
         working-directory: recommendation-service
@@ -34,6 +36,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
+          cache: maven
+          cache-dependency-path: catalog-service/pom.xml
 
       - name: Lancer les tests
         working-directory: catalog-service
