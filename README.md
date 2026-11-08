@@ -75,10 +75,14 @@ curl -X POST http://localhost:8082/api/v1/recommendations \
 
 ## Tests
 
+Seul le JDK 21 est nécessaire : le Maven Wrapper télécharge automatiquement la bonne version de Maven.
+
 ```bash
-cd recommendation-service && mvn test   # moteur de recommandation
-cd catalog-service        && mvn test   # logique du catalogue
+cd recommendation-service && ./mvnw test   # Linux / macOS
+cd catalog-service        && ./mvnw test
 ```
+
+Sous Windows (PowerShell) : `.\mvnw.cmd test` dans chaque service.
 
 Les deux suites s'éxecutent sans base de données, ni serveur: le code
 métier ne depend que d'interfaces.
