@@ -289,8 +289,11 @@ class ScoringEngineTest {
             var result = ScoringEngine.recommend(List.of(mint(), popOs(), arch()), tinyMachine);
 
             assertThat(result).isNotEmpty();
-            // Repli sur les distributions les plus legeres.
-            assertThat(result.get(0).distribution().name()).isEqualTo("Arch Linux");
+            // Repli RG-01 : les distributions les plus legeres sont retenues
+            // (l'ordre suit ensuite le score, la regle n'impose pas d'ordre).
+            assertThat(result)
+                    .extracting(s -> s.distribution().name())
+                    .containsExactlyInAnyOrder("Arch Linux", "Linux Mint", "Pop!_OS");
         }
 
         @Test
