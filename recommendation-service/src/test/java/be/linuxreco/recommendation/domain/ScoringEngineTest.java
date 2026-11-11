@@ -41,10 +41,46 @@ class ScoringEngineTest {
                 Map.of("OFFICE", 2, "GAMING", 4, "EDUCATION", 5));
     }
 
+private static DistributionCandidate ubuntuStudio() {
+        return new DistributionCandidate(10L, "Ubuntu Studio",
+                4096, 16384, 32, null, 2, 2, true, false,
+                Map.of("OFFICE", 4, "CREATIVE", 5));
+    } 
+
+private static DistributionCandidate cachyOs() {
+        return new DistributionCandidate(11L, "CachyOS",
+                3072, 8192, 30, null, null, 3, true, false,
+                Map.of("OFFICE", 4, "CREATIVE", 4));
+    }
+
+private static DistributionCandidate zorin() {
+        return new DistributionCandidate(12L, "Zorin OS Education",
+                2048, null, 35, 1000, 2, 1, true, false,
+                Map.of("OFFICE", 4, "CREATIVE", 3));
+    }
+
+private static DistributionCandidate linuxMintV23() {
+        return new DistributionCandidate(13L, "Linux Mint",
+                2048, 4096, 20, null, null, 1, false, false,
+                Map.of("OFFICE", 4, "CREATIVE", 4));
+    }
+
+private static DistributionCandidate fedora() {
+        return new DistributionCandidate(14L, "Fedora Workstation",
+                null, 4096, 40, null, null, 3, false, false,
+                Map.of("OFFICE", 4, "CREATIVE", 2));
+    }
+
     /** 8192 Mo, GPU NVIDIA, niveau 2, usages bureautique + jeu. */
     private static UserProfile referenceProfile() {
         return new UserProfile(8192, 256, 8000, 4, false, true, 2,
                 Set.of("OFFICE", "GAMING"));
+    }
+
+    /** Exemple du cahier des charges v2.3 */
+    private static UserProfile creativeProfile() {
+        return new UserProfile(8192, 256, 2400, 4, false, true, 2,
+                Set.of("OFFICE", "CREATIVE"));
     }
 
     @Nested
@@ -216,56 +252,101 @@ class ScoringEngineTest {
     }
 
     @Nested
-    @DisplayName("Exemple complet du cahier des charges, section 2.3")
+    @DisplayName("Exemple complet du cahier des charges v2.3, section 2.3")
     class SpecificationExample {
-
+        // Profil commun a tous ces tests (creativeProfile) :
+        //   8192 Mo, 256 Go, 2400 MHz, 4 coeurs, GPU NVIDIA, niveau 2,
+        //   usages coches : bureautique (OFFICE) + creation (CREATIVE).
+        // Les cinq distributions passent la phase 1 (filtres).
+        // Normalisation : score final = (brut + 55) / 115 x 100, arrondi.
         @Test
-        @DisplayName("Pop!_OS obtient 96")
-        void popOsScores96() {
-            //   usage      (4,5-1)/4 x 40 = +35
-            //   competence -10 x |2-2|    =   0
-            //   confort    8192 >= 8192   = +10
-            //   pilotes    debutant, GPU proprietaire, fournis = +10
-            //   brut = 55  ->  (55+55)/115 x 100 = 96
-            var result = ScoringEngine.score(popOs(), referenceProfile());
-            assertThat(result.rawScore()).isEqualTo(55);
-            assertThat(result.finalScore()).isEqualTo(96);
+        @DisplayName("Ubuntu Studio obtient 87")
+        void ubuntuStudioScores87() {
+            //   usage      moyenne(4, 5) = 4,5  ->  (4,5-1)/4 x 40 = +35
+            //   competence -10 x |2-2|                           =   0
+            //   confort    8192 < 16384 (RAM recommandee)        =   0
+            //   pilotes    niveau 2, GPU proprietaire, fournis   = +10
+            //   brut = 45  ->  (45+55)/115 x 100 = 87
+            var result = ScoringEngine.score(ubuntuStudio(), creativeProfile());
+            assertThat(result.rawScore()).isEqualTo(45);
+            assertThat(result.finalScore()).isEqualTo(87);
         }
 
         @Test
-        @DisplayName("Linux Mint obtient 91")
-        void mintScores91() {
-            //   usage (4-1)/4 x 40 = +30 ; brut = 50 -> 91
-            var result = ScoringEngine.score(mint(), referenceProfile());
-            assertThat(result.rawScore()).isEqualTo(50);
-            assertThat(result.finalScore()).isEqualTo(91);
+        @DisplayName("Linux Mint obtient 61")
+        void linuxMintScores61() {
+            //   usage      moyenne(4, 4) = 4    ->  (4-1)/4 x 40   = +30
+            //   competence -10 x |1-2|                           = -10
+            //   confort    8192 >= 4096 (RAM recommandee)        = +10
+            //   pilotes    niveau 2, GPU proprietaire, NON fournis = -15
+            //   brut = 15  ->  (15+55)/115 x 100 = 61
+            // Resultat contre-intuitif documente au cahier (§2.3) : Mint perd
+            // 15 points car les pilotes s'installent facilement mais ne sont
+            // pas fournis d'origine (ships_proprietary_drivers = FALSE).
+            var result = ScoringEngine.score(linuxMintV23(), creativeProfile());
+            assertThat(result.rawScore()).isEqualTo(15);
+            assertThat(result.finalScore()).isEqualTo(61);
         }
 
         @Test
-        @DisplayName("Arch Linux obtient 35")
-        void archScores35() {
-            //   usage +20 ; competence -30 ; confort +10 ; pilotes -15
-            //   brut = -15  ->  (-15+55)/115 x 100 = 35
-            var result = ScoringEngine.score(arch(), referenceProfile());
-            assertThat(result.rawScore()).isEqualTo(-15);
-            assertThat(result.finalScore()).isEqualTo(35);
+        @DisplayName("CachyOS obtient 83")
+        void cachyOsScores83() {
+            //   usage      moyenne(4, 4) = 4    ->  (4-1)/4 x 40   = +30
+            //   competence -10 x |3-2|                           = -10
+            //   confort    8192 >= 8192 (RAM recommandee)        = +10
+            //   pilotes    niveau 2, GPU proprietaire, fournis   = +10
+            //   brut = 40  ->  (40+55)/115 x 100 = 83
+            var result = ScoringEngine.score(cachyOs(), creativeProfile());
+            assertThat(result.rawScore()).isEqualTo(40);
+            assertThat(result.finalScore()).isEqualTo(83);
         }
 
         @Test
-        @DisplayName("Le classement place Pop!_OS, puis Mint, puis Arch")
+        @DisplayName("Zorin OS Education obtient 70")
+        void zorinScores70() {
+            //   usage      moyenne(4, 3) = 3,5  ->  (3,5-1)/4 x 40 = +25
+            //   competence -10 x |1-2|                           = -10
+            //   confort    RAM recommandee non publiee (null)    =   0
+            //   pilotes    niveau 2, GPU proprietaire, fournis   = +10
+            //   brut = 25  ->  (25+55)/115 x 100 = 70
+            var result = ScoringEngine.score(zorin(), creativeProfile());
+            assertThat(result.rawScore()).isEqualTo(25);
+            assertThat(result.finalScore()).isEqualTo(70);
+        }
+
+        @Test
+        @DisplayName("fedora Workstation obtient 52")
+        void fedoraScores52() {
+            //   usage      moyenne(4, 2) = 3    ->  (3-1)/4 x 40   = +20
+            //   competence -10 x |3-2|                           = -10
+            //   confort    8192 >= 4096 (RAM recommandee)        = +10
+            //   pilotes    niveau 2, GPU proprietaire, NON fournis = -15
+            //   brut = 5   ->  (5+55)/115 x 100 = 52
+            var result = ScoringEngine.score(fedora(), creativeProfile());
+            assertThat(result.rawScore()).isEqualTo(5);
+            assertThat(result.finalScore()).isEqualTo(52);
+        }
+
+        @Test
+        @DisplayName("Le classement retient Ubuntu Studio, CachyOS puis Zorin OS Education")
         void rankingIsCorrect() {
+            // Entree volontairement melangee : si le moteur ne triait pas,
+            // le test echouerait. Seuls les trois meilleurs sont retournes
+            // (RG-02) : Linux Mint (61) et Fedora (52) sont ecartees.
             var result = ScoringEngine.recommend(
-                    List.of(mint(), popOs(), arch()), referenceProfile());
+                    List.of(cachyOs(), ubuntuStudio(), linuxMintV23(), zorin(), fedora()), creativeProfile());
 
             assertThat(result)
                     .extracting(s -> s.distribution().name())
-                    .containsExactly("Pop!_OS", "Linux Mint", "Arch Linux");
+                    .containsExactly("Ubuntu Studio", "CachyOS", "Zorin OS Education");
         }
 
         @Test
         @DisplayName("Chaque recommandation est accompagnee de ses motifs (RG-03)")
         void everyRecommendationCarriesItsReasons() {
-            var result = ScoringEngine.score(popOs(), referenceProfile());
+            // Ubuntu Studio fournit les pilotes et l'utilisateur a une carte
+            // NVIDIA : le motif correspondant doit apparaitre dans la reponse.
+            var result = ScoringEngine.score(ubuntuStudio(), creativeProfile());
             assertThat(result.reasons()).isNotEmpty();
             assertThat(result.reasons()).anyMatch(r -> r.contains("pilotes graphiques inclus"));
         }
