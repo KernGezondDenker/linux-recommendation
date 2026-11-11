@@ -82,7 +82,7 @@ class DistributionServiceTest {
         var service = new DistributionService(
                 new FakeRepository(List.of(distro("sans exigence", null, null))));
 
-        assertThat(service.findCompatibleWith(256, 1, 100, 1)).hasSize(1);
+        assertThat(service.findCompatibleWith(256, 20, 100, 2)).hasSize(1);
     }
 
     @Test
