@@ -39,14 +39,18 @@ public class RecommendationController {
     // requete est mal formee, spring renvoie une erreur 400 AVANT que le
     // moteur ne soit appele : le code metier n'a pas a se defendre contre
     // des valeurs absurdes venues du reseau
-    public List<Response> recommend(@Valid @RequestBody Request request) {
+    public RecommendationResponse recommend(@Valid @RequestBody Request request) {
 
         var candidates = catalogClient.fetchAll();
         var profile = request.toDomain();
 
-        return ScoringEngine.recommend(candidates, profile).stream()
-                .map(Response::from)
-                .toList();
+        var outcome = ScoringEngine.recommend(candidates, profile);
+
+        return new RecommendationResponse(
+            outcome.fallbackApplied(),
+            outcome.results().stream()
+                .map(Item::from)
+                .toList());
     }
 
     // le corps de la requete. declare ici plutot que dans son propre
@@ -71,17 +75,22 @@ public class RecommendationController {
         }
     }
 
-    // ce qu'on renvoie au navigateur. on ne publie pas l'objet complet du
+    // une distribution dans la reponse. on ne publie pas l'objet complet du
     // moteur : le score brut et toute la distribution n'interessent pas le
     // front
-    public record Response(Long distributionId, String name, int score, List<String> reasons) {
+    public record Item(Long distributionId, String name, int score, List<String> reasons) {
 
-        static Response from(ScoringEngine.Scored s) {
-            return new Response(
+        static Item from(ScoringEngine.Scored s) {
+            return new Item(
                     s.distribution().id(),
                     s.distribution().name(),
                     s.finalScore(),
                     s.reasons());
         }
+    }
+
+    // l'enveloppe renvoyee au navigateur. fallbackApplied dit si le repli
+    // RG-01 a ete applique : le front doit alors afficher un avertissement
+    public record RecommendationResponse(boolean fallbackApplied, List<Item> results) {
     }
 }

@@ -334,7 +334,7 @@ private static DistributionCandidate fedora() {
             // le test echouerait. Seuls les trois meilleurs sont retournes
             // (RG-02) : Linux Mint (61) et Fedora (52) sont ecartees.
             var result = ScoringEngine.recommend(
-                    List.of(cachyOs(), ubuntuStudio(), linuxMintV23(), zorin(), fedora()), creativeProfile());
+                    List.of(cachyOs(), ubuntuStudio(), linuxMintV23(), zorin(), fedora()), creativeProfile()).results();
 
             assertThat(result)
                     .extracting(s -> s.distribution().name())
@@ -367,7 +367,7 @@ private static DistributionCandidate fedora() {
         @DisplayName("RG-01 : une reponse est produite meme si aucune machine ne convient")
         void alwaysReturnsSomething() {
             var tinyMachine = new UserProfile(256, 1, 100, 1, false, false, 1, Set.of());
-            var result = ScoringEngine.recommend(List.of(mint(), popOs(), arch()), tinyMachine);
+            var result = ScoringEngine.recommend(List.of(mint(), popOs(), arch()), tinyMachine).results();
 
             assertThat(result).isNotEmpty();
             // Repli RG-01 : les distributions les plus legeres sont retenues
@@ -378,10 +378,29 @@ private static DistributionCandidate fedora() {
         }
 
         @Test
+        @DisplayName("RG-01 : la reponse signale le repli quand aucune distribution ne convient")
+        void fallbackIsFlagged() {
+            // machine minuscule : aucune distro ne passe les filtres -> plan B
+            var tinyMachine = new UserProfile(256, 1, 100, 1, false, false, 1, Set.of());
+            var result = ScoringEngine.recommend(List.of(mint(), popOs(), arch()), tinyMachine);
+
+            assertThat(result.fallbackApplied()).isTrue();
+        }
+
+        @Test
+        @DisplayName("RG-01 : pas d'indicateur de repli quand des distributions conviennent")
+        void noFallbackWhenEligible() {
+            // machine confortable (8 Go) : les filtres laissent passer des distros -> pas de plan B
+            var result = ScoringEngine.recommend(List.of(mint(), popOs(), arch()), referenceProfile());
+
+            assertThat(result.fallbackApplied()).isFalse();
+        }
+
+        @Test
         @DisplayName("RG-02 : jamais plus de trois resultats")
         void neverMoreThanThreeResults() {
             var many = List.of(mint(), popOs(), arch(), mint(), popOs());
-            assertThat(ScoringEngine.recommend(many, referenceProfile())).hasSizeLessThanOrEqualTo(3);
+            assertThat(ScoringEngine.recommend(many, referenceProfile()).results()).hasSizeLessThanOrEqualTo(3);
         }
 
         @Test
