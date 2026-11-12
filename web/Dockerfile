@@ -1,5 +1,5 @@
 # ---------- Etape 1 : construction des fichiers statiques ----------
-FROM node:22-alpine AS build
+FROM node:25-alpine AS build
 WORKDIR /build
 
 COPY package.json package-lock.json ./
@@ -17,7 +17,7 @@ RUN npm run build
 # ---------- Etape 2 : service des fichiers ----------
 # nginx n'est ni un framework ni un concurrent de React : c'est le
 # serveur web qui delivre au navigateur les fichiers produits par Vite.
-FROM nginx:1.27-alpine
+FROM nginx:1.31-alpine
 COPY --from=build /build/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
