@@ -42,3 +42,25 @@ jobs:
       - name: Lancer les tests
         working-directory: catalog-service
         run: ./mvnw -B test
+
+
+  build-web:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v7
+
+      - name: Installer Node 22
+        uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Installer les dépendances
+        working-directory: web
+        run: npm ci
+
+      - name: Construire le front
+        working-directory: web
+        run: npm run build
