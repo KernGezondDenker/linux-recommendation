@@ -10,7 +10,7 @@
 # =====================================================================
 
 # ---------- Etape 1 : compilation ----------
-FROM maven:3.9-eclipse-temurin-21 AS build
+FROM maven:3.9-eclipse-temurin-26 AS build
 WORKDIR /build
 
 # On copie d'abord le seul pom.xml pour telecharger les dependances.
@@ -23,7 +23,7 @@ COPY src ./src
 RUN mvn -B clean package -DskipTests
 
 # ---------- Etape 2 : execution ----------
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
 # Utilisateur NON PRIVILEGIE. Par defaut un conteneur tourne en root ;
