@@ -89,8 +89,8 @@ export default function App() {
       if (r.status === 400) throw new Error('Une valeur saisie est hors bornes.')
       if (!r.ok) throw new Error(`Le service a repondu ${r.status}.`)
 
-      // la reponse est un TABLEAU de 1 a 3 entrees. jamais vide : la
-      // regle RG-01 garantit toujours une reponse cote serveur
+      // la reponse est un objet { fallbackApplied, results }. results compte
+      // 1 a 3 entrees, jamais vide : la regle RG-01 le garantit cote serveur
       setResultats(await r.json())
 
     } catch (err) {
@@ -109,7 +109,15 @@ export default function App() {
       {resultats && (
         <section aria-live="polite">
           <h2>Resultats</h2>
-          {resultats.map(d => (
+          {/* RG-01 : si le moteur a utilise le repli, on previent l'utilisateur
+          qu'aucune distribution ne convient vraiment a sa machine */}
+          {resultats.fallbackApplied && (
+            <p role="alert">
+              Aucune distribution du catalogue ne satisfait toutes les exigences
+              de votre machine. Voici les plus légères, à titre indicatif.
+            </p>
+          )}
+          {resultats.results.map(d => (
             <article key={d.distributionId}>
               <header>
                 <h3>{d.name}</h3>
