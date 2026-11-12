@@ -16,6 +16,7 @@ public final class ScoringEngine
     static final int RAW_MIN = -55;
     static final int RAW_MAX =  60;
     static final int MAX_RESULTS = 3;
+
     public record Scored
     (
             DistributionCandidate distribution,
@@ -23,6 +24,12 @@ public final class ScoringEngine
             int finalScore,
             List<String> reasons
     ) {
+    }
+
+    public record Recommendation(List<Scored> results, boolean fallbackApplied) {
+        public Recommendation {
+            results = List.copyOf(results);
+        }
     }
 
 
@@ -140,7 +147,7 @@ public final class ScoringEngine
     }
 
     // c'est le point d'entrée: filtre, classe, renvoie les trois meilleurs
-    public static List<Scored> recommend(List<DistributionCandidate> candidates, UserProfile profile) {
+    public static Recommendation recommend(List<DistributionCandidate> candidates, UserProfile profile) {
 
         // phase 1
         List<DistributionCandidate> eligible = candidates.stream().filter(d -> isCompatible(d, profile)).toList();
@@ -153,7 +160,8 @@ public final class ScoringEngine
         // bas. On montre donc, parmi les plus accessibles, celle qui
         // correspond le mieux au profil. c'est au front d'afficher
         // l'avertissement
-        if (eligible.isEmpty()) 
+        boolean fallbackApplied = eligible.isEmpty();
+        if (fallbackApplied) 
         {
                     eligible = candidates.stream()
                     // une exigence absente est traitée comme la plus
@@ -165,11 +173,13 @@ public final class ScoringEngine
         }
 
         // phase 2 + 3, puis classement decroissant
-        return eligible.stream()
+        List<Scored> results = eligible.stream()
                 .map(d -> score(d, profile))
                 .sorted(Comparator.comparingInt(Scored::rawScore).reversed())
                 .limit(MAX_RESULTS)
                 .toList();
+                
+        return new Recommendation(results, fallbackApplied);
     }
 
     // classe utilitaire : constructeur prive pour qu'on ne puisse ni
