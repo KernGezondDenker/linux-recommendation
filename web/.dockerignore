@@ -1,0 +1,5 @@
+# Ce que Docker ne doit pas copier dans l'image : les dependances et
+# le build sont produits DANS le conteneur, jamais repris du poste
+node_modules
+dist
+npm-debug.log*
