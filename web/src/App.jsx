@@ -112,7 +112,7 @@ export default function App() {
           {/* RG-01 : si le moteur a utilise le repli, on previent l'utilisateur
           qu'aucune distribution ne convient vraiment a sa machine */}
           {resultats.fallbackApplied && (
-            <p role="alert">
+            <p role="alert" className="avertissement">
               Aucune distribution du catalogue ne satisfait toutes les exigences
               de votre machine. Voici les plus légères, à titre indicatif.
             </p>

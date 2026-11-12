@@ -92,3 +92,14 @@ article ul { margin: .7rem 0 0; padding-left: 1.1rem; color: var(--attenue); fon
   padding: .85rem 1rem;
   border-radius: 8px;
 }
+
+/* RG-01 : l'avertissement de repli doit se remarquer, pas se fondre
+   dans le texte. texte sombre sur fond clair : contraste lisible */
+.avertissement {
+  background: #fff4ce;
+  color: #5c3c00;
+  border-left: 4px solid #b45309;
+  border-radius: 8px;
+  padding: .75rem 1rem;
+  font-weight: 600;
+}
