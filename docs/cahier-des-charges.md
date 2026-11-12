@@ -97,8 +97,6 @@ Le choix du domaine fonctionnel reste par ailleurs, dans le cadre de cette unit�
 - **RG-04** — Le rapport DxDiag n'est jamais stocké. Seules les valeurs extraites sont conservées le temps du traitement.
 - **RG-05** — Aucune donnée nominative n'est collectée.
 
-**Dette identifiée sur RG-01.** La règle n'est à ce jour que partiellement implémentée. La sélection de repli fonctionne — `ScoringEngine` retient les trois distributions dont la mémoire minimale est la plus basse — mais la réponse de l'API ne porte **aucun indicateur** signalant que ce repli s'est déclenché. L'interface est donc dans l'incapacité d'afficher l'avertissement exigé. La correction consiste à ajouter un booléen à la réponse du service de recommandation ; elle est planifiée au sprint 5.
-
 ### 2.3 Spécification du moteur de recommandation
 
 Aucune distribution ne possède de score prédéfini. Les points sont calculés à chaque demande, par confrontation des caractéristiques stockées aux réponses de l'utilisateur. Une même distribution obtient donc des scores très différents selon le profil.
@@ -588,7 +586,7 @@ Déploiement par `docker-compose` sur une machine virtuelle issue d'une offre d'
 | **2** | `catalog-service` avec adaptateur JPA et Flyway ; chaîne CI ; **mise en ligne** | URL publique répondant sur `/actuator/health` |
 | **3** | Relevé des faits et codage du catalogue ; migration des données de référence ; premiers écrans React | Saisie des caractéristiques matérielles fonctionnelle, registre des attributions complété |
 | **4** | `recommendation-service`, moteur de scoring, **tests unitaires** | Recommandation calculée de bout en bout |
-| **5** | Questionnaire, restitution motivée, historisation des sessions, indicateur de repli RG-01, **analyse de sensibilité** | Parcours utilisateur complet, robustesse du classement mesurée |
+| **5** | Questionnaire, restitution motivée, historisation des sessions, **analyse de sensibilité** | Parcours utilisateur complet, robustesse du classement mesurée |
 | **6** | **Adaptateur MongoDB**, parsing DxDiag, alternatives logicielles | Démonstration de la bascule de base |
 | **7** | Revue de sécurité, finalisation documentaire, préparation de la défense | Dossier complet |
 
