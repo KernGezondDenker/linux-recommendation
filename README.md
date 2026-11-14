@@ -87,6 +87,20 @@ Sous Windows (PowerShell) : `.\mvnw.cmd test` dans chaque service.
 Les deux suites s'éxecutent sans base de données, ni serveur: le code
 métier ne depend que d'interfaces.
 
+### Couverture (NF-05)
+
+Le rapport JaCoCo est généré par `mvnw test` dans `recommendation-service` :
+`target/site/jacoco/index.html`.
+
+| Périmètre | Instructions | Branches |
+|---|---|---|
+| Moteur (`domain`) | 96 % | 85 % |
+| Service complet | 59 % | 76 % |
+
+Mesuré le 14/11/2026 avec JaCoCo 0.8.16 (28 tests). Le total est plus bas
+car seul le moteur a des tests unitaires : les couches `rest` et `catalog`
+relèvent de tests d'intégration, pas encore écrits.
+
 Une petite esquisse: 
 
 Implémente et expose: le catalogue des distributions et le moteur de
