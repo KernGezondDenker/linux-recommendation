@@ -36,18 +36,20 @@ jobs:
           directory: ${{ github.workspace }}/${{ matrix.service }}
           correlator: ${{ github.job }}-${{ matrix.service }}
 
-  review:
-    if: github.event_name == 'pull_request'
+  dependency-review:
+    if: ${{ !cancelled() && github.event_name == 'pull_request' }}
     needs: submit-maven
     runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
-      - name: Récupérer le code
-        uses: actions/checkout@v7
-
-      - name: Analyser les dépendances
-        uses: actions/dependency-review-action@v4
+      - name: Exiger un graphe Maven complet
+        if: needs.submit-maven.result != 'success'
+        run: |
+          echo "::error::Soumission du graphe Maven en échec : analyse incomplète"
+          exit 1
+      - uses: actions/checkout@v7
+      - uses: actions/dependency-review-action@v5
         with:
           retry-on-snapshot-warnings: true
           retry-on-snapshot-warnings-timeout: 120
