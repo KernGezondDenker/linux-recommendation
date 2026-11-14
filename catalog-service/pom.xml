@@ -10,7 +10,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.1</version>
+        <version>4.1.2</version>
         <relativePath/>
     </parent>
 
@@ -25,10 +25,10 @@
     </properties>
 
     <dependencies>
-        <!-- Serveur HTTP + routage + conversion JSON automatique -->
+        <!-- Serveur HTTP + routage + conversion JSON automatique (spring-boot-starter-webmvc : nom Boot 4 de l'ancien starter-web)-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
 
         <!-- JPA / Hibernate : utilise UNIQUEMENT dans
@@ -50,11 +50,13 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- Migrations de schema. flyway-mysql est OBLIGATOIRE en plus
-             de flyway-core : c'est lui qui connait le dialecte MySQL 8. -->
+        <!-- Migrations de schema. Boot 4 : le starter apporte flyway-core ET
+     la configuration automatique (sans lui, Flyway ne s'execute plus
+     au demarrage). flyway-mysql reste OBLIGATOIRE en plus : c'est lui
+     qui connait le dialecte MySQL 8. -->
         <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-flyway</artifactId>
         </dependency>
         <dependency>
             <groupId>org.flywaydb</groupId>
