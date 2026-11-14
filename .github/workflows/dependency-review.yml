@@ -15,6 +15,7 @@ jobs:
     permissions:
       contents: write     # écrire le graphe de dépendances du dépôt
     strategy:
+      fail-fast: false
       matrix:
         service: [catalog-service, recommendation-service]
     steps:
@@ -32,7 +33,7 @@ jobs:
       - name: Soumettre le graphe Maven
         uses: advanced-security/maven-dependency-submission-action@v6
         with:
-          directory: ${{ matrix.service }}
+          directory: ${{ github.workspace }}/${{ matrix.service }}
 
   review:
     if: github.event_name == 'pull_request'
