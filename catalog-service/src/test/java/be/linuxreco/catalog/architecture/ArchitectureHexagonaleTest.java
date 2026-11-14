@@ -8,30 +8,35 @@ import com.tngtech.archunit.lang.ArchRule;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 /**
- * vérifie que l'architecture hexagonale du §5.3 tient, à chaque build.
+ * verifie que l'architecture hexagonale du §5.3 tient, a chaque build.
  *
- * un test ordinaire vérifie ce que le code FAIT. Celui-ci vérifie ce
- * qu'il n'a PAS le droit de faire : archunit lit les classes compilées
- * et inspecte leurs dépendances, sans rien éxecuter.
+ * un test ordinaire verifie ce que le code FAIT. celui-ci verifie ce
+ * qu'il n'a PAS le droit de faire : archunit lit les classes compilees
+ * et inspecte leurs dependances, sans rien executer.
  *
- * le cahier des charges énonce trois règles non négociables au §5.3.
- * sans ce test, elles reposent sur la vigilance de deux étudiants
- * pendant plusieurs mois. Avec lui, les enfreindre casse le build.
+ * le cahier des charges enonce trois regles non negociables au §5.3.
+ * sans ce test, elles reposent sur la vigilance de deux etudiants
+ * pendant plusieurs mois. avec lui, les enfreindre casse le build.
+ *
+ * deux des trois regles sont couvertes ici. la regle 2 - entites jpa
+ * et documents mongo doivent rester des classes distinctes - ne peut
+ * l'etre qu'a l'arrivee de l'adaptateur mongo (#110), puisqu'il n'y a
+ * aujourd'hui qu'une seule technologie de persistance.
  */
 @AnalyzeClasses(
         packages = "be.linuxreco.catalog",
         // on analyse le code de production, pas les tests : une classe
-        // de test à parfaitement le droit de parler de jpa
+        // de test a parfaitement le droit de parler de jpa
         importOptions = ImportOption.DoNotIncludeTests.class
 )
 class ArchitectureHexagonaleTest {
 
     /**
-     * regle 1 du §5.3: aucune classe du domaine ne porte d'annotation
+     * regle 1 du §5.3 : aucune classe du domaine ne porte d'annotation
      * de persistance.
      *
-     * c'est la règle que demande la tâche #31. On interdit les trois
-     * familles d'un coup: jpa, spring data, et hibernate directement.
+     * c'est la regle que demande la tache #31. on interdit les trois
+     * familles d'un coup : jpa, spring data, et hibernate directement.
      */
     @ArchTest
     static final ArchRule le_domaine_ignore_la_persistance =
@@ -46,14 +51,14 @@ class ArchitectureHexagonaleTest {
                             + "c'est ce qui rend la bascule mysql / mongo possible (§5.3)");
 
     /**
-     * version plus stricte: le domaine ignore spring en entier.
+     * version plus stricte : le domaine ignore spring en entier.
      *
-     * Au-dela de ce que demande la tache, le cahier des charges dit
+     * va au-dela de ce que demande la tache. le cahier des charges dit
      * "classes ordinaires, sans annotation", et le §5.1 ajoute que le
      * moteur metier est ecrit "sans aucune annotation de framework".
      *
-     * si cette règle échoue pour une raison legitime, retirez-la plutot
-     * que de la contourner
+     * si cette regle echoue pour une raison legitime, retirez-la plutot
+     * que de la contourner - mais regardez d'abord ce qu'elle a trouve.
      */
     @ArchTest
     static final ArchRule le_domaine_ignore_spring =
@@ -64,12 +69,12 @@ class ArchitectureHexagonaleTest {
                             + "sans demarrer le moindre contexte applicatif");
 
     /**
-     * regle 3 du §5.3, exprimée à l'envers: le domaine ne connait pas
-     * l'infrastructure.
+     * corollaire de l'inversion de dependance (§5.3) : le domaine ne
+     * connait pas l'infrastructure.
      *
-     * c'est l'inversion de dependance elle-meme. L'adaptateur connait
-     * l'interface du domaine; le domaine ignore qui l'implemente.
-     * si cette flèche s'inversait, l'architecture serait morte sans
+     * c'est l'inversion de dependance elle-meme. l'adaptateur connait
+     * l'interface du domaine ; le domaine ignore qui l'implemente.
+     * si cette fleche s'inversait, l'architecture serait morte sans
      * que rien ne cesse de compiler.
      */
     @ArchTest
@@ -81,11 +86,11 @@ class ArchitectureHexagonaleTest {
                             + "jamais l'inverse (§5.3)");
 
     /**
-     * regle 2 du §5.3: la couche application ne depend que des
-     * interfaces du domaine.
+     * regle 3 du §5.3 : le code metier ne reference jamais qu'une
+     * interface de port.
      *
      * elle a le droit d'utiliser spring - DistributionService porte
-     * l'annotation Service mais pas de connaitre un adaptateur
+     * l'annotation Service - mais pas de connaitre un adaptateur
      * concret.
      */
     @ArchTest
