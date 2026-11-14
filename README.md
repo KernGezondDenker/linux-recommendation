@@ -94,10 +94,10 @@ Le rapport JaCoCo est généré par `mvnw test` dans `recommendation-service` :
 
 | Périmètre | Instructions | Branches |
 |---|---|---|
-| Moteur (`domain`) | 96 % | 85 % |
-| Service complet | 59 % | 76 % |
+| Moteur (`domain`) | 100 % | 100 % |
+| Service complet | 61 % | 90 % |
 
-Mesuré le 14/11/2026 avec JaCoCo 0.8.16 (28 tests). Le total est plus bas
+Mesuré le 14/11/2026 avec JaCoCo 0.8.16 (38 tests). Le total est plus bas
 car seul le moteur a des tests unitaires : les couches `rest` et `catalog`
 relèvent de tests d'intégration, pas encore écrits.
 

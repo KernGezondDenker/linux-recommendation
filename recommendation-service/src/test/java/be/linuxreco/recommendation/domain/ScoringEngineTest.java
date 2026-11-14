@@ -111,6 +111,45 @@ private static DistributionCandidate fedora() {
             var justBelow = new UserProfile(4095, 20, 2000, 2, false, false, 3, Set.of());
             assertThat(ScoringEngine.isCompatible(popOs(), justBelow)).isFalse();
         }
+
+        // passe tous les filtres de popOs() (4096 / 20 / 2000 / 2) :
+        // on ne degrade qu'un critere par test, sinon un filtre precedent
+        // ecarterait la distribution et on testerait le mauvais critere
+        private UserProfile machine(int ram, int storage, int mhz, int cores) {
+            return new UserProfile(ram, storage, mhz, cores, false, false, 3, Set.of());
+        }
+
+        @Test
+        @DisplayName("Un stockage inferieur au minimum ecarte la distribution")
+        void insufficientStorageIsRejected() {
+            assertThat(ScoringEngine.isCompatible(popOs(), machine(8192, 19, 8000, 4))).isFalse();
+        }
+
+        @Test
+        @DisplayName("Une frequence CPU inferieure au minimum ecarte la distribution")
+        void insufficientCpuFrequencyIsRejected() {
+            assertThat(ScoringEngine.isCompatible(popOs(), machine(8192, 256, 1999, 4))).isFalse();
+        }
+
+        @Test
+        @DisplayName("Un nombre de coeurs inferieur au minimum ecarte la distribution")
+        void insufficientCoresIsRejected() {
+            assertThat(ScoringEngine.isCompatible(popOs(), machine(8192, 256, 8000, 1))).isFalse();
+        }
+
+        
+        @Test
+        @DisplayName("Une machine 32 bits accepte une distribution compatible 32 bits")
+        void only32bitMachineAccepts32bitDistribution() {
+            // aucune fixture existante n'a supports32bit = true ; nom fictif
+            // pour ne pas la confondre avec les donnees reelles du registre
+            var compatible32 = new DistributionCandidate(20L, "Distribution 32 bits",
+                    512, 1024, 10, 1000, 1, 3, false, true, Map.of());
+            var machine32Only = new UserProfile(8192, 256, 8000, 4, true, false, 3, Set.of());
+
+            assertThat(ScoringEngine.isCompatible(compatible32, machine32Only)).isTrue();
+        }
+
     }
 
     @Nested
@@ -363,6 +402,15 @@ private static DistributionCandidate fedora() {
             assertThat(ScoringEngine.toFinalScore(ScoringEngine.RAW_MAX)).isEqualTo(100);
         }
 
+        
+        @Test
+        @DisplayName("normalize renvoie 0 quand min = max (pas de division par zero)")
+        void normalizeWithEmptyRangeReturnsZero() {
+            // inatteignable par recommend() avec les constantes actuelles :
+            // le garde-fou protege une future externalisation des bornes
+            assertThat(ScoringEngine.normalize(3, 5, 5, 40)).isZero();
+        }
+
         @Test
         @DisplayName("RG-01 : une reponse est produite meme si aucune machine ne convient")
         void alwaysReturnsSomething() {
@@ -385,6 +433,24 @@ private static DistributionCandidate fedora() {
             var result = ScoringEngine.recommend(List.of(mint(), popOs(), arch()), tinyMachine);
 
             assertThat(result.fallbackApplied()).isTrue();
+        }
+
+        
+        @Test
+        @DisplayName("RG-01 : une RAM minimale non publiee compte comme la plus legere dans le repli")
+        void fallbackTreatsMissingMinRamAsLightest() {
+            // aucune distro ne passe : arch, mint et pop!_os par la RAM,
+            // fedora (RAM non publiee) par le stockage (1 Go < 40 Go)
+            var tinyMachine = new UserProfile(256, 1, 100, 1, false, false, 1, Set.of());
+            var result = ScoringEngine.recommend(
+                    List.of(popOs(), fedora(), mint(), arch()), tinyMachine);
+
+            assertThat(result.fallbackApplied()).isTrue();
+            // tri par RAM minimale : fedora (null -> 0), arch (512), mint (2048)
+            // sont retenues ; pop!_os (4096), la plus lourde, est ecartee
+            assertThat(result.results())
+                    .extracting(s -> s.distribution().name())
+                    .containsExactlyInAnyOrder("Fedora Workstation", "Arch Linux", "Linux Mint");
         }
 
         @Test
