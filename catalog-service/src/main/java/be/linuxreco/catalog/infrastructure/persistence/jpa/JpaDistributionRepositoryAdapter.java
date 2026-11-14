@@ -5,6 +5,7 @@ import be.linuxreco.catalog.domain.port.DistributionRepository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -46,6 +47,21 @@ public class JpaDistributionRepositoryAdapter implements DistributionRepository 
                 // chaque entite jpa est traduite en objet du domaine
                 .map(e -> toDomain(e, weights.getOrDefault(e.getId(), Map.of())))
                 .toList();
+    }
+
+    // une distribution par son identifiant.
+    //
+    // DEUX Optional differents se croisent ici, et c'est tout l'interet
+    // de la methode :
+    //   jpaRepository.findById rend un Optional<DistributionJpaEntity>
+    //   le port exige          un Optional<Distribution>
+    // .map() applique la traduction SANS avoir a ecrire un if : si
+    // l'entite est absente, la lambda n'est jamais executee et
+    // l'Optional vide traverse tel quel
+    @Override
+    public Optional<Distribution> findById(Long id) {
+        return jpaRepository.findById(id)
+                .map(e -> toDomain(e, loadWeights().getOrDefault(id, Map.of())));
     }
 
     // la TRADUCTION entite -> domaine.
