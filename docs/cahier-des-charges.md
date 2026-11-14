@@ -12,6 +12,7 @@
 | 2.1 | Critère des pilotes graphiques exprimé en table de correspondance ; précision du caractère binaire du critère de confort matériel |
 | 2.2 | Axe `LEARNING` remplacé par `EDUCATION` (test de non-redondance) ; filtre processeur porté sur la fréquence et non sur un score de référence ; exigences non publiées rendues nullables |
 | 2.3 | Suppression du catalogue de composants (`cpu`, `gpu`) au profit de la saisie directe des caractéristiques ; mise en conformité du document avec le code livré : filtre processeur, langage d'interface, coefficients du moteur, exemple chiffré ; dette d'implémentation de RG-01 consignée |
+| 2.4 | Alignement sur le suivi Taiga : plan d'implémentation en 12 sprints (§10), mise en ligne au sprint 4 (§9.3), user stories suivies comme stories du backlog et issues réservées aux anomalies (§8.1) ; registre d'images en transition GHCR → Docker Hub (§5.1, §9) ; `securite.md` signalé comme à venir (§5.2) |
 
 **Documents associés**
 
@@ -323,7 +324,7 @@ La route `/actuator/health`, fournie par le module Spring Boot Actuator, renvoie
 | Conteneurisation | Docker + docker-compose | Podman | Requis ; compose toléré par les consignes |
 | Intégration continue | GitHub Actions | GitLab CI, Jenkins | Fortement conseillé ; intégré au dépôt |
 | Versionnage | release-please | semantic-release | Fortement conseillé ; génère automatiquement le journal des modifications |
-| Registre d'images | Docker Hub | GHCR | Publication publique, téléchargement sans authentification |
+| Registre d'images | Docker Hub | GHCR | Publication publique, téléchargement sans authentification ; publication transitoire sur GHCR, voir §9.2 |
 | Éditeur | VS Code | IntelliJ IDEA | Choix de l'équipe ; extensions Java et React matures |
 
 Java et Spring Boot ne sont pas deux options alternatives : Spring Boot est un cadre applicatif écrit en Java, et le code produit avec lui est du Java. Les deux services sont donc écrits dans le même langage avec le même cadre, `catalog-service` en exploitant une plus grande part (Spring Data, Flyway) que `recommendation-service`, qui n'accède pas à la base.
@@ -343,9 +344,16 @@ linux-recommendation/
 │   ├── cahier-des-charges.md
 │   ├── note-technique-algorithme-et-base.md
 │   ├── grille-de-codage.md
-│   └── securite.md
+│   ├── registre-des-attributions.md
+│   ├── releve-des-distributions.xlsx
+│   └── securite.md                  (à venir, sprint 8)
+├── .github/
+│   ├── workflows/
+│   └── dependabot.yml
 ├── docker-compose.yml
-├── .github/workflows/
+├── .gitattributes
+├── .gitignore
+├── CONTRIBUTING.md
 ├── LICENSE
 └── README.md
 ```
@@ -519,7 +527,7 @@ Le service est déployé sur une offre d'essai gratuite, sans haute disponibilit
 
 ### 8.1 Cadre de travail
 
-Sprints de une semaine, suivis dans **Taïga.io** : https://tree.taiga.io/project/martinbuchet-linuxrecommendation . Chaque user story devient une *issue* estimée et rattachée à un sprint. Une revue en fin de sprint dresse l'état d'avancement et réajuste le périmètre restant.
+Sprints d'une semaine, du jeudi au mercredi, suivis dans **Taiga** : https://tree.taiga.io/project/martinbuchet-linuxrecommendation. Chaque user story est une *story* du backlog : estimée en points, rattachée à un epic et à un sprint, puis découpée en tâches. Les *issues* Taiga sont réservées aux anomalies et aux questions, hors backlog. Une revue en fin de sprint dresse l'état d'avancement et réajuste le périmètre restant. Les conventions de l'équipe (définitions de prêt et de terminé, cérémonies, vélocité) figurent dans le wiki du projet.
 
 ### 8.2 Règles de contribution
 
@@ -556,7 +564,7 @@ Push / PR ──► compilation Maven
           ──► tests unitaires
           ──► build npm du front
           ──► construction des images Docker
-          ──► publication sur Docker Hub (sur main uniquement)
+          ──► publication sur Docker Hub (sur tag de version)
           ──► release-please : tag, release GitHub, changelog
 ```
 
@@ -570,27 +578,37 @@ Push / PR ──► compilation Maven
 
 Chaque image porte le numéro de version issu de release-please en plus de l'étiquette `latest`. L'exigence de deux images versionnées est ainsi dépassée.
 
+**État transitoire.** Les images sont actuellement publiées sur GitHub Container Registry (`ghcr.io/kerngezonddenker/<image>`) par le workflow `publish.yml`, déclenché par un tag `vX.Y.Z`, avec l'étiquette de version et l'empreinte du commit, mais sans `latest`. La migration vers Docker Hub, l'ajout de l'étiquette `latest` et la création automatique des tags par release-please sont suivis dans l'US « Versionnage avec release-please et publication Docker Hub » (sprint 5). Le tag `v1.0.0` existant a été posé manuellement et n'est associé à aucune release GitHub : NF-08 n'est pas encore satisfait.
+
 ### 9.3 Hébergement
 
 Déploiement par `docker-compose` sur une machine virtuelle issue d'une offre d'essai gratuite. Les conditions de ces offres évoluent régulièrement et requièrent généralement une carte bancaire pour une durée limitée : elles seront vérifiées avant engagement.
 
-**Contrainte de planification.** Une version minimale est mise en ligne **dès le sprint 2**, avant tout développement fonctionnel avancé. Un déploiement repoussé en fin de projet est la principale cause d'échec du critère AA n°3.
+**Contrainte de planification.** Une version minimale est mise en ligne **au sprint 4** (19/11 → 25/11), avant le développement des écrans du parcours utilisateur. Le livrable est une URL publique répondant sur `/actuator/health`. Un déploiement repoussé en fin de projet est la principale cause d'échec du critère AA n°3 ; l'offre d'hébergement doit donc être choisie avant le début de ce sprint.
 
 ---
 
 ## 10. Plan d'implémentation
 
-| Sprint | Contenu | Livrable vérifiable |
-|---|---|---|
-| **1** | Cahier des charges, schéma, grille de codage, squelettes des projets, dépôt initialisé | Documents en dépôt, projets qui compilent |
-| **2** | `catalog-service` avec adaptateur JPA et Flyway ; chaîne CI ; **mise en ligne** | URL publique répondant sur `/actuator/health` |
-| **3** | Relevé des faits et codage du catalogue ; migration des données de référence ; premiers écrans React | Saisie des caractéristiques matérielles fonctionnelle, registre des attributions complété |
-| **4** | `recommendation-service`, moteur de scoring, **tests unitaires** | Recommandation calculée de bout en bout |
-| **5** | Questionnaire, restitution motivée, historisation des sessions, **analyse de sensibilité** | Parcours utilisateur complet, robustesse du classement mesurée |
-| **6** | **Adaptateur MongoDB**, parsing DxDiag, alternatives logicielles | Démonstration de la bascule de base |
-| **7** | Revue de sécurité, finalisation documentaire, préparation de la défense | Dossier complet |
+Sprints d'une semaine, du jeudi au mercredi, du 29/10/2026 au 20/01/2027. Le détail des stories de chaque sprint est tenu dans Taiga (§8.1).
+
+| Sprint | Dates | Contenu | Livrable vérifiable |
+|---|---|---|---|
+| **1** | 29/10 → 04/11 | Cahier des charges, note technique, schéma commenté | Documents en dépôt |
+| **2** | 05/11 → 11/11 | Grille de codage, gabarit du registre des attributions | Grille en dépôt |
+| **3** | 12/11 → 18/11 | Dépôt et squelettes, `catalog-service` en ports et adaptateurs, chaîne CI, moteur de scoring et **tests unitaires**, indicateur RG-01, données de référence | CI verte sur chaque PR, moteur couvert par les tests |
+| **4** | 19/11 → 25/11 | Adaptateur JPA testé sur un vrai MySQL ; **mise en ligne** | URL publique répondant sur `/actuator/health` |
+| **5** | 26/11 → 02/12 | API REST du catalogue, release-please et images versionnées, relevé des faits du catalogue, endpoint de recommandation | Recommandation calculée de bout en bout |
+| **6** | 03/12 → 09/12 | Double codage du catalogue, saisie matérielle, questionnaire, écran de résultats | Parcours utilisateur complet, registre des attributions complété |
+| **7** | 10/12 → 16/12 | Restitution motivée et fiche de distribution, **adaptateur MongoDB** | Motifs affichés en langage non technique |
+| **8** | 17/12 → 23/12 | Bascule de base, revue de sécurité, **analyse de sensibilité** | Démonstration de la bascule, `docs/securite.md`, robustesse du classement mesurée |
+| **9** | 24/12 → 30/12 | Audit d'accessibilité | Parcours complet au clavier |
+| **10** | 31/12 → 03/01 | Gel du code, finalisation documentaire | **Dossier remis le 03/01** |
+| **11** | 07/01 → 13/01 | Préparation de l'oral | Répétition croisée |
+| **12** | 14/01 → 20/01 | Défense | **Oral le 14/01** |
 
 **Variables d'ajustement** en cas de retard, dans cet ordre de sacrifice : alternatives logicielles (F6), parsing DxDiag (F2), historisation (F7). L'adaptateur MongoDB et les tests unitaires ne sont **jamais** sacrifiables : ils conditionnent directement des critères de la grille.
+Ces fonctionnalités sacrifiables (F2, F6, F7) ne sont rattachées à aucun sprint : elles sont intégrées si la vélocité constatée le permet, dans l'ordre inverse de leur sacrifice.
 
 ---
 
@@ -621,7 +639,7 @@ Pistes identifiées mais délibérément écartées du périmètre :
 | Faire fonctionner l'architecture en environnement multi-tiers et micro-services | §4.1, §9 |
 | Base de données changeable sans impact sur l'application | §5.3 |
 | Transférer les développements sur un serveur central | §9.3 |
-| Montrer que l'application fonctionne | §9.3, sprint 2 |
+| Montrer que l'application fonctionne | §9.3, sprint 4 |
 | Techniques de programmation | §5.3, §4.3 |
 | Pertinence des commentaires | §5.4, migrations commentées |
 | Qualité des documents produits | Ce document, `docs/` |
