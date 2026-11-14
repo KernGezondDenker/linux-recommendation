@@ -1,0 +1,52 @@
+name: Analyse des dépendances
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Par défaut, aucun droit. Chaque job déclare ce dont il a besoin.
+permissions: {}
+
+jobs:
+  submit-maven:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write     # écrire le graphe de dépendances du dépôt
+    strategy:
+      matrix:
+        service: [catalog-service, recommendation-service]
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v7
+
+      - name: Installer le JDK 21
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+          cache-dependency-path: ${{ matrix.service }}/pom.xml
+
+      - name: Soumettre le graphe Maven
+        uses: advanced-security/maven-dependency-submission-action@v6
+        with:
+          directory: ${{ matrix.service }}
+
+  review:
+    if: github.event_name == 'pull_request'
+    needs: submit-maven
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v7
+
+      - name: Analyser les dépendances
+        uses: actions/dependency-review-action@v4
+        with:
+          retry-on-snapshot-warnings: true
+          retry-on-snapshot-warnings-timeout: 120
+          fail-on-severity: 'high'
