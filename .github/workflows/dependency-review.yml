@@ -34,6 +34,7 @@ jobs:
         uses: advanced-security/maven-dependency-submission-action@v6
         with:
           directory: ${{ github.workspace }}/${{ matrix.service }}
+          correlator: ${{ github.job }}-${{ matrix.service }}
 
   review:
     if: github.event_name == 'pull_request'
