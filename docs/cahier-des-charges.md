@@ -312,7 +312,7 @@ La route `/actuator/health`, fournie par le module Spring Boot Actuator, renvoie
 | Domaine | Retenu | Alternatives examinées | Motif |
 |---|---|---|---|
 | Langage applicatif | Java 21 (LTS) | C#, Node.js, Python | Recommandé par le chargé de cours ; typage statique ; support à long terme |
-| Framework applicatif | Spring Boot 3.x | Quarkus, Micronaut, Express | Recommandé ; intègre nativement Spring Data, Flyway, Actuator ; documentation abondante |
+| Framework applicatif | Spring Boot 4.1.2 | Quarkus, Micronaut, Express | Recommandé ; intègre nativement Spring Data, Flyway, Actuator ; documentation abondante |
 | Gestion de build | Maven | Gradle | Configuration déclarative, plus lisible pour une première expérience |
 | Framework d'interface | React 18 + Vite | Angular, Vue, Svelte | Recommandé ; Vite offre un temps de démarrage très court en développement |
 | Langage d'interface | JavaScript (JSX) | TypeScript | L'équipe découvre React ; superposer l'apprentissage d'un système de types à celui du framework aurait multiplié les obstacles sur un périmètre d'interface restreint. Le passage à TypeScript est identifié comme amélioration (§11) |

@@ -10,7 +10,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.1</version>
+        <version>4.1.2</version>
         <relativePath/>
     </parent>
 
@@ -26,10 +26,10 @@
     </properties>
 
     <dependencies>
-        <!-- Serveur HTTP + routage + conversion JSON automatique -->
+        <!-- Serveur HTTP + routage + conversion JSON automatique (spring-boot-starter-webmvc : nom Boot 4 de l'ancien starter-web)-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
 
 
