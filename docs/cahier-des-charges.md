@@ -791,7 +791,7 @@ Le format **Conventional Commits** est obligatoire : il conditionne le fonctionn
 
 Vous ne calculez donc jamais un numéro de version à la main : il découle de vos messages de commit.
 
-### B.7 Fichiers à ne jamais committer
+### B.7a Fichiers à ne jamais committer
 
 Un `.gitignore` est placé à la racine. Il exclut au minimum :
 
@@ -807,3 +807,8 @@ docker-compose.override.yml
 ```
 
 **Un secret committé est un secret compromis, définitivement** : même supprimé par la suite, il reste consultable dans l'historique. Identifiants de base de données et jetons Docker Hub passent exclusivement par les variables d'environnement et les GitHub Secrets.
+
+### B.7b l'override du docker compose sur le PC portable
+
+Il y'a eu une corruption de la version 8.4 sur le PC portable. Par conséquent, une fichier `docker-compose.override.yml` a été créée puis mentionné dans .gitignore.
+Cependant, ce PC portable est le seul qui aura cette exception. Le reste n'est pas concerné. 
