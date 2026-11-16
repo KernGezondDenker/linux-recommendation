@@ -317,7 +317,7 @@ La route `/actuator/health`, fournie par le module Spring Boot Actuator, renvoie
 | Gestion de build | Maven | Gradle | Configuration déclarative, plus lisible pour une première expérience |
 | Framework d'interface | React 18 + Vite | Angular, Vue, Svelte | Recommandé ; Vite offre un temps de démarrage très court en développement |
 | Langage d'interface | JavaScript (JSX) | TypeScript | L'équipe découvre React ; superposer l'apprentissage d'un système de types à celui du framework aurait multiplié les obstacles sur un périmètre d'interface restreint. Le passage à TypeScript est identifié comme amélioration (§11) |
-| Base relationnelle | MySQL 8 | PostgreSQL, MariaDB | SQL conseillé ; modèle fortement relationnel ; outillage graphique accessible |
+| Base relationnelle | MySQL 8.4 LTS | PostgreSQL, MariaDB | SQL conseillé ; modèle fortement relationnel ; outillage graphique accessible |
 | Base alternative | MongoDB 7 | Redis, PostgreSQL | Paradigme radicalement différent : c'est ce contraste qui **prouve** l'indépendance de l'application vis-à-vis du stockage |
 | Migrations | Flyway | Liquibase | Explicitement cité dans les consignes ; migrations en SQL pur |
 | Tests | JUnit 6 (Jupiter) + AssertJ + ArchUnit | TestNG | Standard de l'écosystème Spring Boot ; ArchUnit vérifie l'architecture hexagonale |
@@ -667,7 +667,7 @@ Documentation officielle consultée pour l'établissement des choix techniques d
 
 **Base de données**
 
-- MySQL 8.0 Reference Manual : `https://dev.mysql.com/doc/refman/8.0/en/`
+- MySQL 8.4 Reference Manual : `https://dev.mysql.com/doc/refman/8.4/en/`
   - Types entiers : `integer-types.html`
   - Types `CHAR`, `VARCHAR` et `TEXT` : `char.html`
   - Contraintes `CHECK` : `create-table-check-constraints.html`
@@ -686,7 +686,7 @@ Documentation officielle consultée pour l'établissement des choix techniques d
 - Docker, documentation officielle : `https://docs.docker.com/`
 - GitHub Actions : `https://docs.github.com/en/actions`
 - release-please : `https://github.com/googleapis/release-please`
-- release-please-action : `https://github.com/google-github-actions/release-please-action`
+- release-please-action : `https://github.com/googleapis/release-please-action`
 - Conventional Commits, spécification 1.0.0 : `https://www.conventionalcommits.org/fr/v1.0.0/`
 - Semantic Versioning : `https://semver.org/lang/fr/`
 
