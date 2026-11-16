@@ -52,49 +52,15 @@ class DistributionServiceTest {
     }
 
     @Test
-    @DisplayName("une machine suffisante garde toutes les distributions")
-    void keepsAllWhenHardwareIsSufficient() {
+    @DisplayName("le service renvoie le catalogue fourni par le port, sans base")
+    void findAllReturnsWhatThePortProvides() {
         var service = new DistributionService(new FakeRepository(List.of(
                 distro("legere", 1024, 500),
-                distro("moyenne", 2048, 1500))));
+                distro("sans exigence", null, null))));
 
-        assertThat(service.findCompatibleWith(8192, 256, 3000, 4)).hasSize(2);
-    }
-
-    @Test
-    @DisplayName("une ram insuffisante ecarte la distro trop exigeante")
-    void filtersOutDistributionsRequiringTooMuchRam() {
-        var service = new DistributionService(new FakeRepository(List.of(
-                distro("legere", 1024, 500),
-                distro("exigeante", 4096, 1500))));
-
-        assertThat(service.findCompatibleWith(2048, 256, 3000, 4))
+        assertThat(service.findAll())
                 .extracting(Distribution::name)
-                .containsExactly("legere");
-    }
-
-    @Test
-    @DisplayName("le filtre est inclusif : la valeur minimale exacte passe")
-    void minimumIsInclusive() {
-        var service = new DistributionService(
-                new FakeRepository(List.of(distro("pile poil", 2048, 1000))));
-
-        // exactement le minimum : ca passe, la regle est ">=" et pas ">"
-        assertThat(service.findCompatibleWith(2048, 20, 1000, 2)).hasSize(1);
-
-        // un megaoctet en dessous : ecartee
-        assertThat(service.findCompatibleWith(2047, 20, 1000, 2)).isEmpty();
-    }
-
-    @Test
-    @DisplayName("une exigence non publiee (null) n'ecarte jamais une distro")
-    void nullRequirementIsNotFiltered() {
-        // fedora workstation ne publie aucune ram minimale : le cas reel
-        // qui nous a fait rendre ces colonnes nullables
-        var service = new DistributionService(
-                new FakeRepository(List.of(distro("sans exigence", null, null))));
-
-        assertThat(service.findCompatibleWith(256, 20, 100, 2)).hasSize(1);
+                .containsExactly("legere", "sans exigence");
     }
 
     @Test
