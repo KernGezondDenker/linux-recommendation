@@ -19,7 +19,7 @@
 - `docs/note-technique-algorithme-et-base.md` — présentation détaillée du moteur et du modèle de données
 - `docs/grille-de-codage.md` — critères d'attribution des notes de difficulté et de pertinence
 - `docs/registre-des-attributions.md` — notes attribuées à chaque distribution, avec leurs sources
-- `docs/releve-des-distributions.xlsx` — relevé des caractéristiques publiées par chaque distribution
+- `docs/releve-des-distributions.xlsx` — relevé des vingt-et-une distributions examinées, dont le registre est la transcription
 - `catalog-service/src/main/resources/db/migration/V1__init_schema.sql` — schéma commenté
 - `CONTRIBUTING.md` — règles de contribution : branches, commits, pull requests
 
@@ -773,7 +773,7 @@ git pull
 git checkout -b feat/moteur-scoring
 
 # 3. Travailler, puis enregistrer par étapes cohérentes
-git add add chemin/du/fichier
+git add chemin/du/fichier
 git commit -m "feat(reco): calcul du score d'adequation a l'usage"
 
 # 4. Publier la branche sur GitHub
