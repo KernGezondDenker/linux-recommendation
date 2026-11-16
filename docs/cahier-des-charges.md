@@ -508,13 +508,13 @@ L'absence de publicité et de traçage écarte par ailleurs toute obligation de 
 | Injection SQL | Paramètres d'API | Requêtes paramétrées via Spring Data ; aucune concaténation de chaîne dans une requête |
 | Injection XSS | Affichage des saisies | React échappe par défaut ; usage de `dangerouslySetInnerHTML` **proscrit** |
 | Valeurs d'entrée aberrantes | Formulaire | Contraintes `@Min` / `@Max` sur le contrat d'entrée, validées par `@Valid` avant tout traitement métier ; la validation du navigateur est un confort, celle du serveur la garantie |
-| Déni de service par charge utile | DxDiag volumineux | Limite de taille de requête (64 Ko) ; extraction par expressions régulières sur quelques champs ; aucun stockage du texte brut |
+| Déni de service par charge utile | DxDiag volumineux | Prévu avec la route `parse-dxdiag` : limite de taille de requête (64 Ko) ; extraction par expressions régulières sur quelques champs ; aucun stockage du texte brut |
 | Fuite de secrets | Identifiants en dépôt | Secrets en variables d'environnement et GitHub Secrets ; `.gitignore` couvrant les fichiers locaux |
 | Requêtes inter-origines non maîtrisées | CORS | Origine du front autorisée nommément ; jamais `*` |
 | Exposition de la base | Réseau | MySQL et MongoDB sans port publié vers l'hôte ; joignables uniquement depuis le réseau interne Docker |
-| Élévation de privilèges en conteneur | Image Docker | Exécution sous utilisateur non privilégié ; image de base *slim* |
+| Élévation de privilèges en conteneur | Image Docker | Exécution sous utilisateur non privilégié ; image d'exécution minimale (JRE sur Alpine), sans JDK ni Maven |
 | Dépendances vulnérables | Chaîne d'approvisionnement | Dependabot activé ; analyse des dépendances en intégration continue |
-| Divulgation par messages d'erreur | Réponses d'API | Gestionnaire d'exceptions global ; aucune trace de pile renvoyée au client |
+| Divulgation par messages d'erreur | Réponses d'API | Prévu : gestionnaire d'exceptions global (`@ControllerAdvice`) ; aucune trace de pile renvoyée au client |
 | Ports d'administration exposés | Spring Actuator | Seule la sonde `health` est publiée |
 
 ### 7.3 Limites reconnues
