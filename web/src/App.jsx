@@ -28,15 +28,17 @@ const USAGES =
   { code: 'EDUCATION',   libelle: 'Usage scolaire et educatif' },
 ]
 
-// les cinq descripteurs sont repris mot pour mot de la grille de codage.
-// le moteur calcule |difficulty_level - niveau_declare| : la soustraction
-// n'aurait aucun sens si les deux echelles ne decrivaient pas la meme chose
+// les cinq descripteurs sont repris mot pour mot de la grille de codage
+// (docs/grille-de-codage.md, §3), qui fait foi. le moteur calcule
+// |difficulty_level - niveau_declare| : la soustraction n'aurait aucun
+// sens si les deux echelles ne decrivaient pas la meme chose.
+// toute modification de l'une doit etre repercutee sur l'autre (CDC §2.5)
 const NIVEAUX = [
-  "Je n'ai jamais rien installé par moi-même",
+  "Je n'ai jamais rien installé moi-même",
   'Je sais installer un programme et modifier des réglages',
-  "Je suis à l'aise, j'ai déjà tapé des commandes",
-  'Je configure mon systeme par moi-même',
-  'Je sais assembler et administrer un systeme Linux',
+  "Je suis à l'aise avec mon système, j'ai déjà tapé des commandes",
+  'Je configure mon système moi-même',
+  'Je sais assembler et administrer un système Linux',
 ]
 
 export default function App() {
