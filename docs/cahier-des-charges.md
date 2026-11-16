@@ -320,7 +320,7 @@ La route `/actuator/health`, fournie par le module Spring Boot Actuator, renvoie
 | Base relationnelle | MySQL 8 | PostgreSQL, MariaDB | SQL conseillé ; modèle fortement relationnel ; outillage graphique accessible |
 | Base alternative | MongoDB 7 | Redis, PostgreSQL | Paradigme radicalement différent : c'est ce contraste qui **prouve** l'indépendance de l'application vis-à-vis du stockage |
 | Migrations | Flyway | Liquibase | Explicitement cité dans les consignes ; migrations en SQL pur |
-| Tests | JUnit 5 + Mockito | TestNG | Standard de l'écosystème Spring Boot |
+| Tests | JUnit 6 (Jupiter) + AssertJ + ArchUnit | TestNG | Standard de l'écosystème Spring Boot ; ArchUnit vérifie l'architecture hexagonale |
 | Conteneurisation | Docker + docker-compose | Podman | Requis ; compose toléré par les consignes |
 | Intégration continue | GitHub Actions | GitLab CI, Jenkins | Fortement conseillé ; intégré au dépôt |
 | Versionnage | release-please | semantic-release | Fortement conseillé ; génère automatiquement le journal des modifications |
@@ -657,7 +657,7 @@ Documentation officielle consultée pour l'établissement des choix techniques d
 
 - Spring Boot — documentation de référence : `https://docs.spring.io/spring-boot/`
 - Spring Boot Actuator, points d'accès de supervision : `https://docs.spring.io/spring-boot/reference/actuator/endpoints.html`
-- JUnit 5, guide de l'utilisateur : `https://junit.org/junit5/docs/current/user-guide/`
+- JUnit 6, guide de l'utilisateur : `https://docs.junit.org/`
 
 **Couche d'interface**
 
