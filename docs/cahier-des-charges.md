@@ -564,8 +564,8 @@ Push / PR ──► compilation Maven
           ──► tests unitaires
           ──► build npm du front
           ──► construction des images Docker
-          ──► publication sur Docker Hub (sur tag de version)
-          ──► release-please : tag, release GitHub, changelog
+          ──► publication sur GHCR (sur tag de version) ; Docker Hub à venir (sprint 5)
+          ──► release-please : tag, release GitHub, changelog (à venir, sprint 5)
 ```
 
 ### 9.2 Images publiées
@@ -576,9 +576,9 @@ Push / PR ──► compilation Maven
 | `<compte>/linux-reco-recommendation` | recommendation-service |
 | `<compte>/linux-reco-web` | Interface React servie par nginx |
 
-Chaque image porte le numéro de version issu de release-please en plus de l'étiquette `latest`. L'exigence de deux images versionnées est ainsi dépassée.
+À terme, chaque image portera le numéro de version issu de release-please en plus de l'étiquette `latest`. L'exigence de deux images versionnées est ainsi dépassée.
 
-**État transitoire.** Les images sont actuellement publiées sur GitHub Container Registry (`ghcr.io/kerngezonddenker/<image>`) par le workflow `publish.yml`, déclenché par un tag `vX.Y.Z`, avec l'étiquette de version et l'empreinte du commit, mais sans `latest`. La migration vers Docker Hub, l'ajout de l'étiquette `latest` et la création automatique des tags par release-please sont suivis dans l'US « Versionnage avec release-please et publication Docker Hub » (sprint 5). Le tag `v1.0.0` existant a été posé manuellement et n'est associé à aucune release GitHub : NF-08 n'est pas encore satisfait.
+**État transitoire** Les images sont actuellement publiées sur GitHub Container Registry (`ghcr.io/kerngezonddenker/<image>`) par le workflow `publish.yml`, déclenché par un tag `vX.Y.Z`, avec l’étiquette de version, l’empreinte du commit et `latest`. La migration vers Docker Hub et la création automatique des tags par release-please sont suivies dans l’US « Versionnage avec release-please et publication Docker Hub » (sprint 5). Le projet reste en version 0.x jusqu’à la première version stable : le tag `v1.0.0`, posé manuellement, sera retiré, et release-please démarrera à 0.1.0. NF-08 n’est pas encore satisfait.
 
 ### 9.3 Hébergement
 
