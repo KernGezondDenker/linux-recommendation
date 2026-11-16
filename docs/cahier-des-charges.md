@@ -768,7 +768,7 @@ git pull
 git checkout -b feat/moteur-scoring
 
 # 3. Travailler, puis enregistrer par étapes cohérentes
-git add .
+git add add chemin/du/fichier
 git commit -m "feat(reco): calcul du score d'adequation a l'usage"
 
 # 4. Publier la branche sur GitHub
@@ -776,6 +776,8 @@ git push -u origin feat/moteur-scoring
 
 # 5. Ouvrir une pull request, la faire relire, puis la fusionner
 ```
+
+**Ajouter les fichiers un par un.** `git add .` ajoute tout ce qui a changé dans le dossier, y compris un fichier local ajouté par accident. Nommer chaque fichier oblige à vérifier ce que l'on enregistre (voir aussi `CONTRIBUTING.md`).
 
 **Un commit par unité de sens.** Un commit qui modifie le moteur, corrige une faute dans le README et change la configuration Docker est impossible à relire et impossible à annuler proprement.
 
