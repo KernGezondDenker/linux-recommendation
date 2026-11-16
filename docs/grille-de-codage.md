@@ -159,15 +159,7 @@ La colonne « critère déclenchant » n'est pas un espace de rédaction libre :
 
 **Erreur à éviter.** L'absence de pilotes propriétaires n'est pas en soi un critère de difficulté : ce fait est déjà porté par la colonne `ships_proprietary_drivers` et alimente un autre critère du score. Le compter également dans la difficulté reviendrait à le comptabiliser deux fois. En revanche, sa conséquence en est un : l'ajout d'un dépôt tiers en ligne de commande relève du niveau 3.
 
-**Registre de difficulté** — une ligne par distribution.
-
 Le registre est tenu dans `docs/registre-des-attributions.md` : un tableau de difficulté (une ligne par distribution : note, critère déclenchant, fait observé, source) et une matrice de pertinence (une note par couple distribution × cas d'usage, sur les cinq axes du §4.1).
-
-**Registre de pertinence** — une note par couple (distribution, cas d'usage), consignée sous forme matricielle.
-
-| | Bureautique | Jeux vidéo | Création multimédia | Développement | Apprendre Linux |
-|---|---|---|---|---|---|
-| *(à compléter)* | | | | | |
 
 Cinq distributions et cinq cas d'usage produisent vingt-cinq notes. Les justifier toutes conduirait à les bâcler. Ne sont donc justifiées que trois catégories de cases :
 
