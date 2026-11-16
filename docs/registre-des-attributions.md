@@ -135,10 +135,10 @@ Matrice complète : cinq distributions × cinq cas d'usage.
 
 | Distribution | `OFFICE` | `GAMING` | `CREATIVE` | `DEVELOPMENT` | `EDUCATION` |
 |---|---|---|---|---|---|
-| Linux Mint | 4 | 3 | 4 | 4 | 2 ⚠ |
-| Ubuntu Studio | 4 | 3 | **5** | 3 | 2 ⚠ |
-| Fedora Workstation | 4 | 4 | 2 | **5** | 2 ⚠ |
-| CachyOS | 4 | **5** | 4 | 4 | 1 ⚠ |
+| Linux Mint | 4 | 3 | 4 | 4 | 4 |
+| Ubuntu Studio | 4 | 3 | **5** | 3 | 2 |
+| Fedora Workstation | 4 | 4 | 2 | **5** | 3 |
+| CachyOS | 4 | **5** | 4 | 4 | 1 |
 | Zorin OS Education | 4 | 3 | 3 | 4 | **5** |
 
 **Notes 5 — les plus sourçables**, puisque le projet annonce lui-même sa
@@ -155,15 +155,7 @@ vocation :
 d'impraticabilité demande une preuve. Vérifier qu'aucune logithèque
 éducative n'est proposée, ou remonter la note.
 
-**⚠ Colonne `EDUCATION` à recoder.** Les valeurs ci-dessus sont reprises
-de l'ancienne colonne `LEARNING`, dont le label était « apprendre et
-maîtriser Linux ». L'axe a été remplacé (voir §4.2 de
-`grille-de-codage.md`) et les cinq valeurs doivent être attribuées à
-nouveau, séparément par chaque membre puis comparées, sur le critère
-« usage scolaire et éducatif ».
-
-Seule la note de Zorin OS Education est acquise : l'édition est
-explicitement destinée à l'enseignement.
+**Recodage de la colonne `EDUCATION` (16/11/2026).** Chaque membre a noté les distributions séparément sur le critère « usage scolaire et éducatif » (grille de codage §4.5), puis les notes ont été comparées. Le recodage confirme les valeurs du relevé (`releve-des-distributions.xlsx`). V2 les avait mal transcrites pour Linux Mint (2 au lieu de 4) et Fedora Workstation (2 au lieu de 3) ; la migration `V3__recoder_education.sql` les corrige.
 
 **Source non officielle à remplacer** : la note `GAMING` de Fedora
 citait `xda-developers.com`.
@@ -197,13 +189,12 @@ rattaché à une URL officielle avant toute présentation.
 
 | # | À faire | Où |
 |---|---|---|
-| 1 | Recoder les cinq valeurs `EDUCATION`, séparément puis comparer | §4 |
-| 2 | Remplacer les sources Fedora non officielles (difficulté et `GAMING`) | §3, §4 |
-| 3 | Compléter le fait observé de Zorin OS Education | §3 |
-| 4 | Trancher le critère d'Ubuntu Studio : amender la grille ou recoder | §3 |
-| 5 | Confirmer les valeurs héritées de Zorin Core par l'édition Education | §1, §2 |
-| 6 | Rattacher chaque `install_method` à une URL officielle | §5 |
-| 7 | Justifier la note 1 de CachyOS / `EDUCATION` | §4 |
+| 1 | Remplacer les sources Fedora non officielles (difficulté et `GAMING`) | §3, §4 |
+| 2 | Compléter le fait observé de Zorin OS Education | §3 |
+| 3 | Trancher le critère d'Ubuntu Studio : amender la grille ou recoder | §3 |
+| 4 | Confirmer les valeurs héritées de Zorin Core par l'édition Education | §1, §2 |
+| 5 | Rattacher chaque `install_method` à une URL officielle | §5 |
+| 6 | Justifier la note 1 de CachyOS / `EDUCATION` | §4 |
 
 Les seize distributions restantes du relevé seront intégrées
 ultérieurement, selon la même méthode.
