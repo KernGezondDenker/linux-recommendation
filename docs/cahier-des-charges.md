@@ -257,6 +257,8 @@ En conséquence, **les cinq descripteurs de la grille de difficulté constituent
 └───────────────────┘
 ```
 
+Ce schéma décrit l'architecture cible. À ce stade, l'interface n'appelle que `recommendation-service`, qui interroge lui-même `catalog-service`. Les appels directs de l'interface au catalogue arriveront avec la fiche de distribution (F5) et le répertoire des logiciels (F6) ; ils exigeront d'autoriser l'origine du front dans `catalog-service`, comme `CorsConfig` le fait déjà dans `recommendation-service` (§7.2).
+
 Trois rôles distincts composent la couche d'interface : **React** est la bibliothèque dans laquelle l'interface est écrite, **Vite** l'outil qui convertit ce code en fichiers interprétables par un navigateur, **nginx** le serveur qui les délivre.
 
 ### 4.2 Décomposition en micro-services
