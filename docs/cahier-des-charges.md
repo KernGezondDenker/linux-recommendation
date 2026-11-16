@@ -404,11 +404,11 @@ Chaque **adaptateur** l'implémente pour une technologie donnée, et est activé
 ```java
 @Repository
 @Profile("mysql")
-public class JpaDistributionRepository implements DistributionRepository { … }
+public class JpaDistributionRepositoryAdapter implements DistributionRepository { … }
 
 @Repository
 @Profile("mongo")
-public class MongoDistributionRepository implements DistributionRepository { … }
+public class MongoDistributionRepositoryAdapter implements DistributionRepository { … } // sprint 7
 ```
 
 La bascule s'opère par une seule variable d'environnement :
