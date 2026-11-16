@@ -536,7 +536,7 @@ Sprints d'une semaine, du jeudi au mercredi, suivis dans **Taiga** : https://tre
 - Une branche par fonctionnalité : `feat/moteur-scoring`, `fix/parsing-dxdiag`.
 - **Commits conventionnels** (`feat:`, `fix:`, `docs:`, `chore:`, `test:`) — exigés pour release-please (à venir, sprint 5)
 - Toute fusion vers `main` passe par une *pull request* relue par l'autre membre. Même à deux, la revue croisée détecte des erreurs et matérialise le travail d'équipe attendu par la grille.
-- La branche `main` est protégée (ruleset GitHub) : pull request et approbation de l’autre membre obligatoires, suppression et force-push bloqués. La réussite de l’intégration continue n’est pas encore exigée par le ruleset : le relecteur vérifie qu’elle est verte avant de fusionner.
+- La branche `main` est protégée (ruleset GitHub) : pull request et approbation de l'autre membre obligatoires, suppression et force-push bloqués. La réussite de l'intégration continue n'est pas encore exigée par le ruleset : le relecteur vérifie qu'elle est verte avant de fusionner.
 - Les commits sont répartis sur toute la durée du projet, jamais regroupés en fin de parcours.
 - Un fichier `.gitattributes` normalise les fins de ligne en LF dans le dépôt. Les deux postes de travail étant sous Windows, son absence produisait des différences fantômes sur des fichiers non modifiés.
 
@@ -580,7 +580,7 @@ Push / PR ──► compilation Maven
 
 À terme, chaque image portera le numéro de version issu de release-please en plus de l'étiquette `latest`. L'exigence de deux images versionnées sera ainsi dépassée.
 
-**État transitoire.** Les images sont actuellement publiées sur GitHub Container Registry (`ghcr.io/kerngezonddenker/<image>`) par le workflow `publish.yml`, déclenché par un tag `vX.Y.Z`, avec l’étiquette de version, l’empreinte du commit et `latest`. La migration vers Docker Hub et la création automatique des tags par release-please sont suivies dans l’US « Versionnage avec release-please et publication Docker Hub » (sprint 5). Le projet reste en version 0.x jusqu’à la première version stable : le tag `v1.0.0`, posé manuellement, sera retiré, et release-please démarrera à 0.1.0. NF-08 n’est pas encore satisfait.
+**État transitoire.** Les images sont actuellement publiées sur GitHub Container Registry (`ghcr.io/kerngezonddenker/<image>`) par le workflow `publish.yml`, déclenché par un tag `vX.Y.Z`, avec l'étiquette de version, l'empreinte du commit et `latest`. La migration vers Docker Hub et la création automatique des tags par release-please sont suivies dans l'US « Versionnage avec release-please et publication Docker Hub » (sprint 5). Le projet reste en version 0.x jusqu'à la première version stable : le tag `v1.0.0`, posé manuellement, sera retiré, et release-please démarrera à 0.1.0. NF-08 n'est pas encore satisfait.
 
 ### 9.3 Hébergement
 
@@ -803,7 +803,7 @@ Le format **Conventional Commits** est obligatoire : il conditionne le fonctionn
 
 ### B.6 Releases et images Docker
 
-Fonctionnement prévu à partir du sprint 5 ; voir l’état actuel au §9.2.
+Fonctionnement prévu à partir du sprint 5 ; voir l'état actuel au §9.2.
 
 1. Vous fusionnez des pull requests dans `main` avec des messages conventionnels.
 2. **release-please** lit l'historique, en déduit le numéro de version suivant, et ouvre une *pull request de publication* contenant le journal des modifications généré.
