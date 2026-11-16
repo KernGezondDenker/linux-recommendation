@@ -825,17 +825,21 @@ Vous ne calculez donc jamais un numéro de version à la main : il découle de v
 
 ### B.7 Fichiers à ne jamais committer
 
-Un `.gitignore` est placé à la racine. Il exclut au minimum :
+Un `.gitignore` est placé à la racine. Il exclut notamment :
 
 ```
 target/
 node_modules/
 dist/
-.env
 *.local
+.env
+.env.*
+application-local.yml
 .idea/
 .vscode/settings.json
-docker-compose.override.yml
+*.iml
 ```
+
+Un fichier propre à un seul poste (par exemple un `docker-compose.override.yml` de contournement) ne va pas dans le `.gitignore`, qui est partagé, mais dans `.git/info/exclude` : ce fichier suit les mêmes règles et n'est jamais committé.
 
 **Un secret committé est un secret compromis, définitivement** : même supprimé par la suite, il reste consultable dans l'historique. Identifiants de base de données et jetons Docker Hub passent exclusivement par les variables d'environnement et les GitHub Secrets.
