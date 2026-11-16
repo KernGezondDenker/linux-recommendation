@@ -161,9 +161,7 @@ La colonne « critère déclenchant » n'est pas un espace de rédaction libre :
 
 **Registre de difficulté** — une ligne par distribution.
 
-| Distribution | Note | Critère déclenchant | Fait observé | Source |
-|---|---|---|---|---|
-| *(à compléter)* | | | | |
+Le registre est tenu dans `docs/registre-des-attributions.md` : un tableau de difficulté (une ligne par distribution : note, critère déclenchant, fait observé, source) et une matrice de pertinence (une note par couple distribution × cas d'usage, sur les cinq axes du §4.1).
 
 **Registre de pertinence** — une note par couple (distribution, cas d'usage), consignée sous forme matricielle.
 
