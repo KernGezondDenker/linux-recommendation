@@ -1,5 +1,5 @@
 # ---------- Etape 1 : construction des fichiers statiques ----------
-FROM node:22-alpine AS build
+FROM node:26-alpine AS build
 WORKDIR /build
 
 COPY package.json package-lock.json ./
@@ -25,7 +25,7 @@ RUN npm run build
 #
 # Branche 1.30 = branche STABLE maintenue. La 1.27 utilisee jusqu'ici
 # est en fin de vie depuis juin 2025 (plus aucun correctif de securite).
-FROM nginxinc/nginx-unprivileged:1.30-alpine
+FROM nginxinc/nginx-unprivileged:1.31-alpine
 COPY --from=build /build/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 8080
