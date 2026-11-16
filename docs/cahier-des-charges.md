@@ -16,7 +16,7 @@
 
 **Documents associés**
 
-- `docs/note-technique-algorithme-et-base.md` — présentation détaillée du moteur et du modèle de données
+- `docs/note-technique-algorithme-et-base.md` — conception initiale (octobre 2026), conservée à titre historique ; la référence à jour est le présent document (§2.3 et §6)
 - `docs/grille-de-codage.md` — critères d'attribution des notes de difficulté et de pertinence
 - `docs/registre-des-attributions.md` — notes attribuées à chaque distribution, avec leurs sources
 - `docs/releve-des-distributions.xlsx` — relevé des vingt-et-une distributions examinées, dont le registre est la transcription
@@ -541,7 +541,7 @@ Sprints d'une semaine, du jeudi au mercredi, suivis dans **Taiga** : https://tre
 ### 8.2 Règles de contribution
 
 - Une branche par fonctionnalité : `feat/moteur-scoring`, `fix/parsing-dxdiag`.
-- **Commits conventionnels** (`feat:`, `fix:`, `docs:`, `chore:`, `test:`) — exigés pour release-please (à venir, sprint 5), qui en déduira le numéro de version et le journal des modifications. Cette discipline s'applique dès le premier commit.
+- **Commits conventionnels** (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `ci:`, `chore:`) — exigés pour release-please (à venir, sprint 5), qui en déduira le numéro de version et le journal des modifications. Cette discipline s'applique dès le premier commit.
 - Toute fusion vers `main` passe par une *pull request* relue par l'autre membre. Même à deux, la revue croisée détecte des erreurs et matérialise le travail d'équipe attendu par la grille.
 - La branche `main` est protégée (ruleset GitHub) : pull request et approbation de l'autre membre obligatoires, suppression et force-push bloqués. La réussite de l'intégration continue n'est pas encore exigée par le ruleset : le relecteur vérifie qu'elle est verte avant de fusionner.
 - Les commits sont répartis sur toute la durée du projet, jamais regroupés en fin de parcours.
@@ -825,17 +825,21 @@ Vous ne calculez donc jamais un numéro de version à la main : il découle de v
 
 ### B.7 Fichiers à ne jamais committer
 
-Un `.gitignore` est placé à la racine. Il exclut au minimum :
+Un `.gitignore` est placé à la racine. Il exclut notamment :
 
 ```
 target/
 node_modules/
 dist/
-.env
 *.local
+.env
+.env.*
+application-local.yml
 .idea/
 .vscode/settings.json
-docker-compose.override.yml
+*.iml
 ```
+
+Un fichier propre à un seul poste (par exemple un `docker-compose.override.yml` de contournement) ne va pas dans le `.gitignore`, qui est partagé, mais dans `.git/info/exclude` : ce fichier suit les mêmes règles et n'est jamais committé.
 
 **Un secret committé est un secret compromis, définitivement** : même supprimé par la suite, il reste consultable dans l'historique. Identifiants de base de données et jetons Docker Hub passent exclusivement par les variables d'environnement et les GitHub Secrets.
