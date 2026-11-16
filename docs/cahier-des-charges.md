@@ -294,12 +294,12 @@ Les deux services sont empaquetés séparément, versionnés séparément et peu
 
 Le segment `v1` désigne la **version du contrat d'interface**, et non une base de données ni un numéro de version du logiciel. Il autorise la publication ultérieure d'un `/api/v2` incompatible tout en laissant fonctionner les clients existants pendant la transition.
 
-La base de données porte le nom **`linux_distro_reco`**. Ce nom n'apparaît qu'à un seul endroit du projet, la chaîne de connexion :
+La base de données porte le nom **`linux_distro_reco`**. Ce nom n'apparaît qu'à un seul endroit du projet, la chaîne de connexion de `catalog-service`, où il sert de valeur par défaut à la variable `DB_NAME` :
 
 ```yaml
 spring:
   datasource:
-    url: jdbc:mysql://mysql:3306/linux_distro_reco
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:linux_distro_reco}
 ```
 
 La route `/actuator/health`, fournie par le module Spring Boot Actuator, renvoie l'état de l'application et vérifie au passage la connexion à la base. Elle sert de sonde de démarrage à `docker-compose` et de vérification rapide du service déployé. Seul cet endpoint est exposé, à l'exclusion des autres routes d'Actuator susceptibles de divulguer la configuration.
