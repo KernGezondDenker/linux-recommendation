@@ -482,6 +482,8 @@ Cette décision a remplacé une première conception comportant des tables `cpu`
 
 **Actions référentielles explicites.** `CASCADE` lorsque l'enfant n'a pas d'existence propre sans son parent, `RESTRICT` sur les tables de référence pour empêcher une suppression accidentelle, `SET NULL` sur l'historique afin qu'une session conserve sa valeur de trace même si la distribution est retirée du catalogue.
 
+**Exception au typage des clés.** Les clés primaires sont des `BIGINT` (`Long` côté Java), à une exception près : `use_case.id` et la clé étrangère `distribution_use_case.use_case_id` sont des `INT` (`Integer` côté Java). Le commentaire en tête de `V1__init_schema.sql` annonce `BIGINT` pour toutes les clés ; une migration déjà appliquée ne se modifie pas, l'écart est donc consigné ici.
+
 ### 6.3 Constitution du catalogue
 
 **Volumétrie visée** : une quinzaine de distributions documentées avec soin plutôt qu'une centaine renseignées approximativement. Cinq sont documentées à ce stade.
