@@ -6,6 +6,7 @@ import be.linuxreco.catalog.domain.model.Distribution;
 import be.linuxreco.catalog.domain.port.DistributionRepository;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -28,6 +29,17 @@ class DistributionServiceTest {
         @Override
         public List<Distribution> findAll() {
             return data;
+        }
+
+        // le port a gagne cette methode, donc TOUS ses adaptateurs
+        // doivent la fournir - y compris celui-ci. c'est le compilateur
+        // qui l'a exige, pas nous : un contrat elargi engage ceux qui
+        // l'ont signe
+        @Override
+        public Optional<Distribution> findById(Long id) {
+            return data.stream()
+                    .filter(d -> id.equals(d.id()))
+                    .findFirst();
         }
     }
 

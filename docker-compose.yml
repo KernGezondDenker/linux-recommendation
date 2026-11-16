@@ -59,6 +59,21 @@ services:
       - "8082:8082"
     depends_on:
       - catalog-service
+  web:
+    build:
+      context: ./web
+      args:
+        # Le code React s'execute dans le NAVIGATEUR de l'utilisateur,
+        # pas dans le reseau Docker : il doit donc appeler l'adresse
+        # PUBLIEE de l'API (localhost:8082), et non le nom interne
+        # "recommendation-service", inconnu du navigateur.
+        VITE_RECOMMENDATION_URL: http://localhost:8082
+    ports:
+      # 5173 cote poste (annonce par le README), 8080 dans le conteneur
+      # (nginx non privilegie ne peut pas ecouter sur 80)
+      - "5173:8080"
+    depends_on:
+      - recommendation-service
 
 volumes:
   mysql-data:

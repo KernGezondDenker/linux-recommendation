@@ -12,12 +12,16 @@
 | 2.1 | Critère des pilotes graphiques exprimé en table de correspondance ; précision du caractère binaire du critère de confort matériel |
 | 2.2 | Axe `LEARNING` remplacé par `EDUCATION` (test de non-redondance) ; filtre processeur porté sur la fréquence et non sur un score de référence ; exigences non publiées rendues nullables |
 | 2.3 | Suppression du catalogue de composants (`cpu`, `gpu`) au profit de la saisie directe des caractéristiques ; mise en conformité du document avec le code livré : filtre processeur, langage d'interface, coefficients du moteur, exemple chiffré ; dette d'implémentation de RG-01 consignée |
+| 2.4 | Alignement sur le suivi Taiga : plan d'implémentation en 12 sprints (§10), mise en ligne au sprint 4 (§9.3), user stories suivies comme stories du backlog et issues réservées aux anomalies (§8.1) ; registre d'images en transition GHCR → Docker Hub (§5.1, §9) ; `securite.md` signalé comme à venir (§5.2) |
 
 **Documents associés**
 
-- `docs/note-technique-algorithme-et-base.md` — présentation détaillée du moteur et du modèle de données
+- `docs/note-technique-algorithme-et-base.md` — conception initiale (octobre 2026), conservée à titre historique ; la référence à jour est le présent document (§2.3 et §6)
 - `docs/grille-de-codage.md` — critères d'attribution des notes de difficulté et de pertinence
+- `docs/registre-des-attributions.md` — notes attribuées à chaque distribution, avec leurs sources
+- `docs/releve-des-distributions.xlsx` — relevé des vingt-et-une distributions examinées, dont le registre est la transcription
 - `catalog-service/src/main/resources/db/migration/V1__init_schema.sql` — schéma commenté
+- `CONTRIBUTING.md` — règles de contribution : branches, commits, pull requests
 
 ---
 
@@ -256,6 +260,8 @@ En conséquence, **les cinq descripteurs de la grille de difficulté constituent
 └───────────────────┘
 ```
 
+Ce schéma décrit l'architecture cible. À ce stade, l'interface n'appelle que `recommendation-service`, qui interroge lui-même `catalog-service`. Les appels directs de l'interface au catalogue arriveront avec la fiche de distribution (F5) et le répertoire des logiciels (F6) ; ils exigeront d'autoriser l'origine du front dans `catalog-service`, comme `CorsConfig` le fait déjà dans `recommendation-service` (§7.2).
+
 Trois rôles distincts composent la couche d'interface : **React** est la bibliothèque dans laquelle l'interface est écrite, **Vite** l'outil qui convertit ce code en fichiers interprétables par un navigateur, **nginx** le serveur qui les délivre.
 
 ### 4.2 Décomposition en micro-services
@@ -274,32 +280,34 @@ Les deux services sont empaquetés séparément, versionnés séparément et peu
 
 **`catalog-service`**
 
-| Méthode | Route | Rôle |
-|---|---|---|
-| GET | `/api/v1/distributions` | Distributions et leurs exigences |
-| GET | `/api/v1/use-cases` | Cas d'usage du questionnaire |
-| GET | `/api/v1/applications` | Logiciels référencés |
-| GET | `/api/v1/applications/{id}/alternatives` | Alternatives Linux d'un logiciel |
-| POST | `/api/v1/sessions` | Historisation d'une recommandation |
-| GET | `/actuator/health` | Sonde de santé |
+| Méthode | Route | Rôle | État |
+|---|---|---|---|
+| GET | `/api/v1/distributions` | Distributions et leurs exigences | Disponible |
+| GET | `/api/v1/use-cases` | Cas d'usage du questionnaire | À venir |
+| GET | `/api/v1/applications` | Logiciels référencés | À venir |
+| GET | `/api/v1/applications/{id}/alternatives` | Alternatives Linux d'un logiciel | À venir |
+| POST | `/api/v1/sessions` | Historisation d'une recommandation | À venir |
+| GET | `/actuator/health` | Sonde de santé | Disponible |
 
 **`recommendation-service`**
 
-| Méthode | Route | Rôle |
-|---|---|---|
-| POST | `/api/v1/recommendations` | Calcule et retourne le classement |
-| POST | `/api/v1/hardware/parse-dxdiag` | Extrait la configuration d'un rapport DxDiag |
-| GET | `/actuator/health` | Sonde de santé |
+| Méthode | Route | Rôle | État |
+|---|---|---|---|
+| POST | `/api/v1/recommendations` | Calcule et retourne le classement | Disponible |
+| POST | `/api/v1/hardware/parse-dxdiag` | Extrait la configuration d'un rapport DxDiag | À venir |
+| GET | `/actuator/health` | Sonde de santé | Disponible |
 
 Le segment `v1` désigne la **version du contrat d'interface**, et non une base de données ni un numéro de version du logiciel. Il autorise la publication ultérieure d'un `/api/v2` incompatible tout en laissant fonctionner les clients existants pendant la transition.
 
-La base de données porte le nom **`linux_distro_reco`**. Ce nom n'apparaît qu'à un seul endroit du projet, la chaîne de connexion :
+La base de données porte le nom **`linux_distro_reco`**. Dans le code, ce nom n'apparaît qu'à un seul endroit, la chaîne de connexion de `catalog-service`, où il sert de valeur par défaut à la variable `DB_NAME` :
 
 ```yaml
 spring:
   datasource:
-    url: jdbc:mysql://mysql:3306/linux_distro_reco
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:linux_distro_reco}
 ```
+
+`docker-compose.yml` le reprend deux fois : pour créer la base (`MYSQL_DATABASE`) et pour la transmettre au service (`DB_NAME`).
 
 La route `/actuator/health`, fournie par le module Spring Boot Actuator, renvoie l'état de l'application et vérifie au passage la connexion à la base. Elle sert de sonde de démarrage à `docker-compose` et de vérification rapide du service déployé. Seul cet endpoint est exposé, à l'exclusion des autres routes d'Actuator susceptibles de divulguer la configuration.
 
@@ -316,14 +324,14 @@ La route `/actuator/health`, fournie par le module Spring Boot Actuator, renvoie
 | Gestion de build | Maven | Gradle | Configuration déclarative, plus lisible pour une première expérience |
 | Framework d'interface | React 18 + Vite | Angular, Vue, Svelte | Recommandé ; Vite offre un temps de démarrage très court en développement |
 | Langage d'interface | JavaScript (JSX) | TypeScript | L'équipe découvre React ; superposer l'apprentissage d'un système de types à celui du framework aurait multiplié les obstacles sur un périmètre d'interface restreint. Le passage à TypeScript est identifié comme amélioration (§11) |
-| Base relationnelle | MySQL 8 | PostgreSQL, MariaDB | SQL conseillé ; modèle fortement relationnel ; outillage graphique accessible |
+| Base relationnelle | MySQL 8.4 LTS | PostgreSQL, MariaDB | SQL conseillé ; modèle fortement relationnel ; outillage graphique accessible |
 | Base alternative | MongoDB 7 | Redis, PostgreSQL | Paradigme radicalement différent : c'est ce contraste qui **prouve** l'indépendance de l'application vis-à-vis du stockage |
 | Migrations | Flyway | Liquibase | Explicitement cité dans les consignes ; migrations en SQL pur |
-| Tests | JUnit 5 + Mockito | TestNG | Standard de l'écosystème Spring Boot |
+| Tests | JUnit 6 (Jupiter) + AssertJ + ArchUnit | TestNG | Standard de l'écosystème Spring Boot ; ArchUnit vérifie l'architecture hexagonale |
 | Conteneurisation | Docker + docker-compose | Podman | Requis ; compose toléré par les consignes |
 | Intégration continue | GitHub Actions | GitLab CI, Jenkins | Fortement conseillé ; intégré au dépôt |
 | Versionnage | release-please | semantic-release | Fortement conseillé ; génère automatiquement le journal des modifications |
-| Registre d'images | Docker Hub | GHCR | Publication publique, téléchargement sans authentification |
+| Registre d'images | Docker Hub | GHCR | Publication publique, téléchargement sans authentification ; publication transitoire sur GHCR, voir §9.2 |
 | Éditeur | VS Code | IntelliJ IDEA | Choix de l'équipe ; extensions Java et React matures |
 
 Java et Spring Boot ne sont pas deux options alternatives : Spring Boot est un cadre applicatif écrit en Java, et le code produit avec lui est du Java. Les deux services sont donc écrits dans le même langage avec le même cadre, `catalog-service` en exploitant une plus grande part (Spring Data, Flyway) que `recommendation-service`, qui n'accède pas à la base.
@@ -343,9 +351,16 @@ linux-recommendation/
 │   ├── cahier-des-charges.md
 │   ├── note-technique-algorithme-et-base.md
 │   ├── grille-de-codage.md
-│   └── securite.md
+│   ├── registre-des-attributions.md
+│   ├── releve-des-distributions.xlsx
+│   └── securite.md                  (à venir, sprint 8)
+├── .github/
+│   ├── workflows/
+│   └── dependabot.yml
 ├── docker-compose.yml
-├── .github/workflows/
+├── .gitattributes
+├── .gitignore
+├── CONTRIBUTING.md
 ├── LICENSE
 └── README.md
 ```
@@ -394,11 +409,11 @@ Chaque **adaptateur** l'implémente pour une technologie donnée, et est activé
 ```java
 @Repository
 @Profile("mysql")
-public class JpaDistributionRepository implements DistributionRepository { … }
+public class JpaDistributionRepositoryAdapter implements DistributionRepository { … }
 
 @Repository
 @Profile("mongo")
-public class MongoDistributionRepository implements DistributionRepository { … }
+public class MongoDistributionRepositoryAdapter implements DistributionRepository { … } // sprint 7
 ```
 
 La bascule s'opère par une seule variable d'environnement :
@@ -471,6 +486,8 @@ Cette décision a remplacé une première conception comportant des tables `cpu`
 
 **Actions référentielles explicites.** `CASCADE` lorsque l'enfant n'a pas d'existence propre sans son parent, `RESTRICT` sur les tables de référence pour empêcher une suppression accidentelle, `SET NULL` sur l'historique afin qu'une session conserve sa valeur de trace même si la distribution est retirée du catalogue.
 
+**Exception au typage des clés.** Les clés primaires sont des `BIGINT` (`Long` côté Java), à une exception près : `use_case.id` et la clé étrangère `distribution_use_case.use_case_id` sont des `INT` (`Integer` côté Java). Le commentaire en tête de `V1__init_schema.sql` annonce `BIGINT` pour toutes les clés ; une migration déjà appliquée ne se modifie pas, l'écart est donc consigné ici.
+
 ### 6.3 Constitution du catalogue
 
 **Volumétrie visée** : une quinzaine de distributions documentées avec soin plutôt qu'une centaine renseignées approximativement. Cinq sont documentées à ce stade.
@@ -498,13 +515,13 @@ L'absence de publicité et de traçage écarte par ailleurs toute obligation de 
 | Injection SQL | Paramètres d'API | Requêtes paramétrées via Spring Data ; aucune concaténation de chaîne dans une requête |
 | Injection XSS | Affichage des saisies | React échappe par défaut ; usage de `dangerouslySetInnerHTML` **proscrit** |
 | Valeurs d'entrée aberrantes | Formulaire | Contraintes `@Min` / `@Max` sur le contrat d'entrée, validées par `@Valid` avant tout traitement métier ; la validation du navigateur est un confort, celle du serveur la garantie |
-| Déni de service par charge utile | DxDiag volumineux | Limite de taille de requête (64 Ko) ; extraction par expressions régulières sur quelques champs ; aucun stockage du texte brut |
+| Déni de service par charge utile | DxDiag volumineux | Prévu avec la route `parse-dxdiag` : limite de taille de requête (64 Ko) ; extraction par expressions régulières sur quelques champs ; aucun stockage du texte brut |
 | Fuite de secrets | Identifiants en dépôt | Secrets en variables d'environnement et GitHub Secrets ; `.gitignore` couvrant les fichiers locaux |
 | Requêtes inter-origines non maîtrisées | CORS | Origine du front autorisée nommément ; jamais `*` |
 | Exposition de la base | Réseau | MySQL et MongoDB sans port publié vers l'hôte ; joignables uniquement depuis le réseau interne Docker |
-| Élévation de privilèges en conteneur | Image Docker | Exécution sous utilisateur non privilégié ; image de base *slim* |
+| Élévation de privilèges en conteneur | Image Docker | Exécution sous utilisateur non privilégié ; image d'exécution minimale (JRE sur Alpine), sans JDK ni Maven |
 | Dépendances vulnérables | Chaîne d'approvisionnement | Dependabot activé ; analyse des dépendances en intégration continue |
-| Divulgation par messages d'erreur | Réponses d'API | Gestionnaire d'exceptions global ; aucune trace de pile renvoyée au client |
+| Divulgation par messages d'erreur | Réponses d'API | Prévu : gestionnaire d'exceptions global (`@ControllerAdvice`) ; aucune trace de pile renvoyée au client |
 | Ports d'administration exposés | Spring Actuator | Seule la sonde `health` est publiée |
 
 ### 7.3 Limites reconnues
@@ -519,14 +536,14 @@ Le service est déployé sur une offre d'essai gratuite, sans haute disponibilit
 
 ### 8.1 Cadre de travail
 
-Sprints de une semaine, suivis dans **Taïga.io** : https://tree.taiga.io/project/martinbuchet-linuxrecommendation . Chaque user story devient une *issue* estimée et rattachée à un sprint. Une revue en fin de sprint dresse l'état d'avancement et réajuste le périmètre restant.
+Sprints d'une semaine, du jeudi au mercredi, suivis dans **Taiga** : https://tree.taiga.io/project/martinbuchet-linuxrecommendation. Chaque user story est une *story* du backlog : estimée en points, rattachée à un epic et à un sprint, puis découpée en tâches. Les *issues* Taiga sont réservées aux anomalies et aux questions, hors backlog. Une revue en fin de sprint dresse l'état d'avancement et réajuste le périmètre restant. Les conventions de l'équipe (définitions de prêt et de terminé, cérémonies, vélocité) figurent dans le wiki du projet.
 
 ### 8.2 Règles de contribution
 
 - Une branche par fonctionnalité : `feat/moteur-scoring`, `fix/parsing-dxdiag`.
-- **Commits conventionnels** (`feat:`, `fix:`, `docs:`, `chore:`, `test:`) — imposés par release-please, qui en déduit le numéro de version et le journal des modifications. Cette discipline s'applique dès le premier commit.
+- **Commits conventionnels** (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `ci:`, `chore:`) — exigés pour release-please (à venir, sprint 5), qui en déduira le numéro de version et le journal des modifications. Cette discipline s'applique dès le premier commit.
 - Toute fusion vers `main` passe par une *pull request* relue par l'autre membre. Même à deux, la revue croisée détecte des erreurs et matérialise le travail d'équipe attendu par la grille.
-- La branche `main` est protégée : intégration continue verte obligatoire avant fusion.
+- La branche `main` est protégée (ruleset GitHub) : pull request et approbation de l'autre membre obligatoires, suppression et force-push bloqués. La réussite de l'intégration continue n'est pas encore exigée par le ruleset : le relecteur vérifie qu'elle est verte avant de fusionner.
 - Les commits sont répartis sur toute la durée du projet, jamais regroupés en fin de parcours.
 - Un fichier `.gitattributes` normalise les fins de ligne en LF dans le dépôt. Les deux postes de travail étant sous Windows, son absence produisait des différences fantômes sur des fichiers non modifiés.
 
@@ -556,8 +573,8 @@ Push / PR ──► compilation Maven
           ──► tests unitaires
           ──► build npm du front
           ──► construction des images Docker
-          ──► publication sur Docker Hub (sur main uniquement)
-          ──► release-please : tag, release GitHub, changelog
+          ──► publication sur GHCR (sur tag de version) ; Docker Hub à venir (sprint 5)
+          ──► release-please : tag, release GitHub, changelog (à venir, sprint 5)
 ```
 
 ### 9.2 Images publiées
@@ -568,29 +585,39 @@ Push / PR ──► compilation Maven
 | `<compte>/linux-reco-recommendation` | recommendation-service |
 | `<compte>/linux-reco-web` | Interface React servie par nginx |
 
-Chaque image porte le numéro de version issu de release-please en plus de l'étiquette `latest`. L'exigence de deux images versionnées est ainsi dépassée.
+À terme, chaque image portera le numéro de version issu de release-please en plus de l'étiquette `latest`. L'exigence de deux images versionnées sera ainsi dépassée.
+
+**État transitoire.** Les images sont actuellement publiées sur GitHub Container Registry (`ghcr.io/kerngezonddenker/<image>`) par le workflow `publish.yml`, déclenché par un tag `vX.Y.Z`, avec l'étiquette de version, l'empreinte du commit et `latest`. La migration vers Docker Hub et la création automatique des tags par release-please sont suivies dans l'US « Versionnage avec release-please et publication Docker Hub » (sprint 5). Le projet reste en version 0.x jusqu'à la première version stable : le tag `v1.0.0`, posé manuellement, sera retiré, et release-please démarrera à 0.1.0. NF-08 n'est pas encore satisfait.
 
 ### 9.3 Hébergement
 
 Déploiement par `docker-compose` sur une machine virtuelle issue d'une offre d'essai gratuite. Les conditions de ces offres évoluent régulièrement et requièrent généralement une carte bancaire pour une durée limitée : elles seront vérifiées avant engagement.
 
-**Contrainte de planification.** Une version minimale est mise en ligne **dès le sprint 2**, avant tout développement fonctionnel avancé. Un déploiement repoussé en fin de projet est la principale cause d'échec du critère AA n°3.
+**Contrainte de planification.** Une version minimale est mise en ligne **au sprint 4** (19/11 → 25/11), avant le développement des écrans du parcours utilisateur. Le livrable est une URL publique répondant sur `/actuator/health`. Un déploiement repoussé en fin de projet est la principale cause d'échec du critère AA n°3 ; l'offre d'hébergement doit donc être choisie avant le début de ce sprint.
 
 ---
 
 ## 10. Plan d'implémentation
 
-| Sprint | Contenu | Livrable vérifiable |
-|---|---|---|
-| **1** | Cahier des charges, schéma, grille de codage, squelettes des projets, dépôt initialisé | Documents en dépôt, projets qui compilent |
-| **2** | `catalog-service` avec adaptateur JPA et Flyway ; chaîne CI ; **mise en ligne** | URL publique répondant sur `/actuator/health` |
-| **3** | Relevé des faits et codage du catalogue ; migration des données de référence ; premiers écrans React | Saisie des caractéristiques matérielles fonctionnelle, registre des attributions complété |
-| **4** | `recommendation-service`, moteur de scoring, **tests unitaires** | Recommandation calculée de bout en bout |
-| **5** | Questionnaire, restitution motivée, historisation des sessions, **analyse de sensibilité** | Parcours utilisateur complet, robustesse du classement mesurée |
-| **6** | **Adaptateur MongoDB**, parsing DxDiag, alternatives logicielles | Démonstration de la bascule de base |
-| **7** | Revue de sécurité, finalisation documentaire, préparation de la défense | Dossier complet |
+Sprints d'une semaine, du jeudi au mercredi, du 29/10/2026 au 20/01/2027. Le détail des stories de chaque sprint est tenu dans Taiga (§8.1).
+
+| Sprint | Dates | Contenu | Livrable vérifiable |
+|---|---|---|---|
+| **1** | 29/10 → 04/11 | Cahier des charges, note technique, schéma commenté | Documents en dépôt |
+| **2** | 05/11 → 11/11 | Grille de codage, gabarit du registre des attributions | Grille en dépôt |
+| **3** | 12/11 → 18/11 | Dépôt et squelettes, `catalog-service` en ports et adaptateurs, chaîne CI, moteur de scoring et **tests unitaires**, indicateur RG-01, données de référence | CI verte sur chaque PR, moteur couvert par les tests |
+| **4** | 19/11 → 25/11 | Adaptateur JPA testé sur un vrai MySQL ; **mise en ligne** | URL publique répondant sur `/actuator/health` |
+| **5** | 26/11 → 02/12 | API REST du catalogue, release-please et images versionnées, relevé des faits du catalogue, endpoint de recommandation | Recommandation calculée de bout en bout |
+| **6** | 03/12 → 09/12 | Double codage du catalogue, saisie matérielle, questionnaire, écran de résultats | Parcours utilisateur complet, registre des attributions complété |
+| **7** | 10/12 → 16/12 | Restitution motivée et fiche de distribution, **adaptateur MongoDB** | Motifs affichés en langage non technique |
+| **8** | 17/12 → 23/12 | Bascule de base, revue de sécurité, **analyse de sensibilité** | Démonstration de la bascule, `docs/securite.md`, robustesse du classement mesurée |
+| **9** | 24/12 → 30/12 | Audit d'accessibilité | Parcours complet au clavier |
+| **10** | 31/12 → 03/01 | Gel du code, finalisation documentaire | **Dossier remis le 03/01** |
+| **11** | 07/01 → 13/01 | Préparation de l'oral | Répétition croisée |
+| **12** | 14/01 → 20/01 | Défense | **Oral le 14/01** |
 
 **Variables d'ajustement** en cas de retard, dans cet ordre de sacrifice : alternatives logicielles (F6), parsing DxDiag (F2), historisation (F7). L'adaptateur MongoDB et les tests unitaires ne sont **jamais** sacrifiables : ils conditionnent directement des critères de la grille.
+Ces fonctionnalités sacrifiables (F2, F6, F7) ne sont rattachées à aucun sprint : elles sont intégrées si la vélocité constatée le permet, dans l'ordre inverse de leur sacrifice.
 
 ---
 
@@ -621,7 +648,7 @@ Pistes identifiées mais délibérément écartées du périmètre :
 | Faire fonctionner l'architecture en environnement multi-tiers et micro-services | §4.1, §9 |
 | Base de données changeable sans impact sur l'application | §5.3 |
 | Transférer les développements sur un serveur central | §9.3 |
-| Montrer que l'application fonctionne | §9.3, sprint 2 |
+| Montrer que l'application fonctionne | §9.3, sprint 4 |
 | Techniques de programmation | §5.3, §4.3 |
 | Pertinence des commentaires | §5.4, migrations commentées |
 | Qualité des documents produits | Ce document, `docs/` |
@@ -639,7 +666,7 @@ Documentation officielle consultée pour l'établissement des choix techniques d
 
 - Spring Boot — documentation de référence : `https://docs.spring.io/spring-boot/`
 - Spring Boot Actuator, points d'accès de supervision : `https://docs.spring.io/spring-boot/reference/actuator/endpoints.html`
-- JUnit 5, guide de l'utilisateur : `https://junit.org/junit5/docs/current/user-guide/`
+- JUnit 6, guide de l'utilisateur : `https://docs.junit.org/`
 
 **Couche d'interface**
 
@@ -649,7 +676,7 @@ Documentation officielle consultée pour l'établissement des choix techniques d
 
 **Base de données**
 
-- MySQL 8.0 Reference Manual : `https://dev.mysql.com/doc/refman/8.0/en/`
+- MySQL 8.4 Reference Manual : `https://dev.mysql.com/doc/refman/8.4/en/`
   - Types entiers : `integer-types.html`
   - Types `CHAR`, `VARCHAR` et `TEXT` : `char.html`
   - Contraintes `CHECK` : `create-table-check-constraints.html`
@@ -668,7 +695,7 @@ Documentation officielle consultée pour l'établissement des choix techniques d
 - Docker, documentation officielle : `https://docs.docker.com/`
 - GitHub Actions : `https://docs.github.com/en/actions`
 - release-please : `https://github.com/googleapis/release-please`
-- release-please-action : `https://github.com/google-github-actions/release-please-action`
+- release-please-action : `https://github.com/googleapis/release-please-action`
 - Conventional Commits, spécification 1.0.0 : `https://www.conventionalcommits.org/fr/v1.0.0/`
 - Semantic Versioning : `https://semver.org/lang/fr/`
 
@@ -682,7 +709,7 @@ Documentation officielle consultée pour l'établissement des choix techniques d
 - Pro Git, Scott Chacon et Ben Straub (ouvrage libre, version française) : `https://git-scm.com/book/fr/v2`
 - Documentation GitHub : `https://docs.github.com/fr`
 
-Les sources du catalogue de distributions — sites et documentations officiels des projets retenus — sont consignées individuellement dans le registre des attributions de `docs/grille-de-codage.md`.
+Les sources du catalogue de distributions — sites et documentations officiels des projets retenus — sont consignées individuellement dans `docs/registre-des-attributions.md`.
 
 ---
 
@@ -750,7 +777,7 @@ git pull
 git checkout -b feat/moteur-scoring
 
 # 3. Travailler, puis enregistrer par étapes cohérentes
-git add .
+git add chemin/du/fichier
 git commit -m "feat(reco): calcul du score d'adequation a l'usage"
 
 # 4. Publier la branche sur GitHub
@@ -758,6 +785,8 @@ git push -u origin feat/moteur-scoring
 
 # 5. Ouvrir une pull request, la faire relire, puis la fusionner
 ```
+
+**Ajouter les fichiers un par un.** `git add .` ajoute tout ce qui a changé dans le dossier, y compris un fichier local ajouté par accident. Nommer chaque fichier oblige à vérifier ce que l'on enregistre (voir aussi `CONTRIBUTING.md`).
 
 **Un commit par unité de sens.** Un commit qui modifie le moteur, corrige une faute dans le README et change la configuration Docker est impossible à relire et impossible à annuler proprement.
 
@@ -779,32 +808,39 @@ Le format **Conventional Commits** est obligatoire : il conditionne le fonctionn
 | `test` | Ajout ou modification de tests | Aucun |
 | `refactor` | Réorganisation sans changement de comportement | Aucun |
 | `chore` | Tâche d'intendance (dépendances, configuration) | Aucun |
+| `ci` | Intégration continue | Aucun |
 | `feat!` ou `fix!` | Changement incompatible | Incrémente le premier chiffre (1.2.0 → 2.0.0) |
 
 ### B.6 Releases et images Docker
+
+*Fonctionnement prévu à partir du sprint 5 ; voir l'état actuel au §9.2.*
 
 1. Vous fusionnez des pull requests dans `main` avec des messages conventionnels.
 2. **release-please** lit l'historique, en déduit le numéro de version suivant, et ouvre une *pull request de publication* contenant le journal des modifications généré.
 3. Vous relisez cette pull request et la fusionnez quand vous jugez la version prête.
 4. release-please pose alors le tag et crée la release GitHub.
-5. Le workflow d'intégration continue, déclenché par ce tag, construit les images Docker et les publie sur Docker Hub avec ce numéro de version.
+5. Le workflow d'intégration continue, déclenché par ce tag, construit les images Docker et les publie sur le registre d'images avec ce numéro de version.
 
 Vous ne calculez donc jamais un numéro de version à la main : il découle de vos messages de commit.
 
 ### B.7a Fichiers à ne jamais committer
 
-Un `.gitignore` est placé à la racine. Il exclut au minimum :
+Un `.gitignore` est placé à la racine. Il exclut notamment :
 
 ```
 target/
 node_modules/
 dist/
-.env
 *.local
+.env
+.env.*
+application-local.yml
 .idea/
 .vscode/settings.json
-docker-compose.override.yml
+*.iml
 ```
+
+Un fichier propre à un seul poste (par exemple un `docker-compose.override.yml` de contournement) ne va pas dans le `.gitignore`, qui est partagé, mais dans `.git/info/exclude` : ce fichier suit les mêmes règles et n'est jamais committé.
 
 **Un secret committé est un secret compromis, définitivement** : même supprimé par la suite, il reste consultable dans l'historique. Identifiants de base de données et jetons Docker Hub passent exclusivement par les variables d'environnement et les GitHub Secrets.
 

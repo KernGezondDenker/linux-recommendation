@@ -32,7 +32,7 @@ Il complète l'annexe B du cahier des charges (`docs/cahier-des-charges.md`), qu
 | 4 | **`git pull` sur `main` avant chaque nouvelle tâche** | Moins une branche diverge, moins il y a de conflits |
 | 5 | **Aucun secret dans le dépôt** (mot de passe, jeton, `.env`) | Un secret committé reste lisible dans l'historique, même supprimé ensuite |
 | 6 | **Des commits réguliers, sur toute la durée du projet** | Exigé par l'énoncé ; l'historique montre la progression réelle |
-| 7 | **Tests verts avant de pousser** du code Java (`mvn test`) | On ne demande pas à l'autre de relire du code cassé |
+| 7 | **Tests verts avant de pousser** du code Java (`.\mvnw.cmd test`) | On ne demande pas à l'autre de relire du code cassé |
 
 ---
 
@@ -42,7 +42,7 @@ Il complète l'annexe B du cahier des charges (`docs/cahier-des-charges.md`), qu
 Taiga            Poste local                   GitHub
 ─────            ───────────                   ──────
 In progress ──►  branche depuis main
-                 commits + mvn test
+                 commits + mvnw test
                  git push ─────────────────►   pull request
 Ready for test                                 relecture par l'autre membre
                  corrections éventuelles ──►   approbation
@@ -78,7 +78,7 @@ git commit -m "feat(reco): signaler le repli RG-01 dans la reponse"
 
   ```powershell
   cd recommendation-service
-  mvn test
+  .\mvnw.cmd test
   ```
 
 ### Étape 4 — Pousser et ouvrir la pull request
@@ -142,7 +142,7 @@ Format : `<type>(<portée facultative>): <description à l'impératif>`
 | `ci` | Intégration continue | aucun |
 | `feat!` / `fix!` | Changement incompatible | 1.2.0 → **2.0.0** |
 
-**Portées utilisées dans ce projet :** `catalog`, `reco`, `web`, `db`, `docker`, `ci`.
+**Portées utilisées dans ce projet :** `catalog`, `reco`, `web`, `db`, `docker`, `ci`. Les portées `deps` et `deps-dev` sont réservées aux mises à jour ouvertes par Dependabot.
 
 | ✅ Correct | ❌ Incorrect | Problème |
 |---|---|---|
@@ -168,7 +168,7 @@ Ce que la PR change, en une ou deux phrases.
 La règle, l'exigence ou le problème traité (section du cahier des charges si possible).
 
 ## Comment tester
-1. `cd recommendation-service && mvn test`
+1. `cd recommendation-service; .\mvnw.cmd test`
 2. ...
 
 ## Lien
@@ -178,7 +178,7 @@ Taiga #<numéro>
 ### Avant de demander une relecture
 
 - [ ] La branche part d'un `main` récent
-- [ ] `mvn test` passe dans chaque service modifié
+- [ ] `.\mvnw.cmd test` passe dans chaque service modifié
 - [ ] Aucun fichier inutile (`target/`, `node_modules/`, `.env`)
 - [ ] Le titre respecte Conventional Commits
 - [ ] La description est remplie et cite la tâche Taiga
@@ -195,7 +195,8 @@ Relire n'est pas une formalité : c'est la preuve du travail d'équipe, et chacu
 ```powershell
 git fetch origin
 git checkout feat/nom-de-la-branche
-mvn test
+cd recommendation-service
+.\mvnw.cmd test
 ```
 
 ### Liste de vérification du relecteur
@@ -228,7 +229,7 @@ L'historique de `main` reste lisible : une ligne par fonctionnalité.
 - une pull request est obligatoire ;
 - une approbation de l'autre membre est obligatoire ;
 - la suppression et le *force-push* sur `main` sont bloqués ;
-- *(à venir)* la CI doit être verte avant la fusion.
+- la réussite de la CI n'est pas encore exigée par le ruleset : **le relecteur vérifie qu'elle est verte avant de fusionner**.
 
 ### Après la fusion
 
@@ -337,4 +338,4 @@ git config --global user.email
 
 **Docker ne démarre pas sous Windows.**
 Docker Desktop doit être lancé (« Engine running »), et la virtualisation doit être activée dans le BIOS (Intel VT-x ou AMD SVM).
-Les tests (`mvn test`) fonctionnent sans Docker.
+Les tests (`.\mvnw.cmd test`) fonctionnent sans Docker.

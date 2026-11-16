@@ -1,27 +1,27 @@
-LinuxRecommendation
+# LinuxRecommendation
 
-C'est une application web qui filtre un catalogue contenant des distributions
-Linux selon la configuration matérielle et le profil de l'utilisateur,
-classe les résultats selon des pondérations publiées, et justifie
-chaque classement.
+Application web qui filtre un catalogue de distributions Linux selon la
+configuration matérielle et le profil de l'utilisateur, classe les résultats
+selon des pondérations publiées, et justifie chaque classement.
 
-Projet d'integration de developpement pour un Bachelier en informatique de
+Projet d'intégration de développement pour un Bachelier en informatique de
 gestion, 2026-2027.
 
-Etat
-Début d'une Maquette technique: une tranche verticale traversant chaque couche du
-projet.
+## État
+
+Début d'une maquette technique : une tranche verticale traversant chaque
+couche du projet.
 
 Le catalogue contient **cinq distributions réelles**, relevées sur les
-sites et documentations officiels: Linux Mint, Ubuntu Studio, Fedora
-Workstation, CachyOS et Zorin OS Education. 21 distributions
-ont été examinées et les 16 autres seront integrées plus tard.
+sites et documentations officiels : Linux Mint, Ubuntu Studio, Fedora
+Workstation, CachyOS et Zorin OS Education. Vingt-et-une distributions
+ont été examinées ; les seize autres seront intégrées plus tard.
 
 Chaque valeur est consignée dans `docs/registre-des-attributions.md`
 avec son fait observé et sa source. Les points restant à confirmer y
 sont marqués.
 
-Architecture
+## Architecture
 
 ```
 Navigateur
@@ -32,7 +32,7 @@ web (React + Vite, servi par nginx)
     v
 recommendation-service  --->  catalog-service  --->  MySQL
   moteur de scoring            catalogue             (ou MongoDB)
-  SANS ETAT                    seul acces aux donnees
+  SANS ÉTAT                    seul accès aux données
 ```
 
 | Composant | Technologie | Port |
@@ -40,9 +40,9 @@ recommendation-service  --->  catalog-service  --->  MySQL
 | `web` | React 18, Vite, nginx | 5173 |
 | `recommendation-service` | Java 21, Spring Boot | 8082 |
 | `catalog-service` | Java 21, Spring Boot, JPA, Flyway | 8081 |
-| base de donnees | MySQL 8 | interne |
+| base de données | MySQL 8.4 LTS | interne |
 
-## Demarrage
+## Démarrage
 
 ```bash
 docker compose up --build
@@ -84,8 +84,8 @@ cd catalog-service        && ./mvnw test
 
 Sous Windows (PowerShell) : `.\mvnw.cmd test` dans chaque service.
 
-Les deux suites s'éxecutent sans base de données, ni serveur: le code
-métier ne depend que d'interfaces.
+Les deux suites s'exécutent sans base de données ni serveur : le code
+métier ne dépend que d'interfaces.
 
 ### Couverture (NF-05)
 
@@ -94,31 +94,37 @@ Le rapport JaCoCo est généré par `mvnw test` dans `recommendation-service` :
 
 | Périmètre | Instructions | Branches |
 |---|---|---|
-| Moteur (`domain`) | 96 % | 85 % |
-| Service complet | 59 % | 76 % |
+| Moteur (`domain`) | 100 % | 100 % |
+| Service complet | 61 % | 90 % |
 
-Mesuré le 14/11/2026 avec JaCoCo 0.8.16 (28 tests). Le total est plus bas
+Mesuré le 14/11/2026 avec JaCoCo 0.8.16 (38 tests). Le total est plus bas
 car seul le moteur a des tests unitaires : les couches `rest` et `catalog`
 relèvent de tests d'intégration, pas encore écrits.
 
-Une petite esquisse: 
+## Périmètre de la maquette
 
-Implémente et expose: le catalogue des distributions et le moteur de
-recommandation, de la base de données jusqu'à l'interface.
+Implémentés et exposés : le catalogue des distributions
+(`GET /api/v1/distributions`) et le moteur de recommandation
+(`POST /api/v1/recommendations`), de la base de données jusqu'à l'interface.
 
-Modélisé dans le schema mais PAS ENCORE exposé: les applications,
-leurs alternatives Linux et leur disponibilite par distribution (trois
-tables, voir V1__init_schema.sql). Choix de cet esquisse assumé pour une première version.
+Prévus mais pas encore exposés : les cas d'usage (`GET /api/v1/use-cases`),
+les applications, leurs alternatives Linux et leur disponibilité par
+distribution (trois tables déjà modélisées, voir `V1__init_schema.sql`),
+l'historisation des recommandations (`POST /api/v1/sessions`) et l'import
+d'un rapport DxDiag (`POST /api/v1/hardware/parse-dxdiag`). Ce découpage est
+assumé pour une première version ; l'état de chaque route est tenu à jour
+dans le cahier des charges, §4.3.
 
 ## Documentation
 
 | Document | Contenu |
 |---|---|
-| `docs/cahier-des-charges.md` | Perimetre, architecture, choix techniques, sécurité |
-| `docs/note-technique-algorithme-et-base.md` | Moteur et modele de donnees en détail |
+| `docs/cahier-des-charges.md` | Périmètre, architecture, choix techniques, sécurité |
+| `docs/note-technique-algorithme-et-base.md` | Conception initiale (octobre), conservée à titre historique |
 | `docs/grille-de-codage.md` | Critères d'attribution des notes du catalogue |
 | `docs/registre-des-attributions.md` | Chaque note du catalogue, son fait observé et sa source |
 | `docs/releve-des-distributions.xlsx` | Relevé brut des 21 distributions examinées |
+| `CONTRIBUTING.md` | Règles de contribution : branches, commits, pull requests |
 
 ## Licence
 
