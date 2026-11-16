@@ -229,7 +229,7 @@ L'historique de `main` reste lisible : une ligne par fonctionnalité.
 - une pull request est obligatoire ;
 - une approbation de l'autre membre est obligatoire ;
 - la suppression et le *force-push* sur `main` sont bloqués ;
-- *(à venir)* la CI doit être verte avant la fusion.
+- la réussite de la CI n'est pas encore exigée par le ruleset : **le relecteur vérifie qu'elle est verte avant de fusionner**.
 
 ### Après la fusion
 
