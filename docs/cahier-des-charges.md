@@ -296,13 +296,15 @@ Les deux services sont empaquetés séparément, versionnés séparément et peu
 
 Le segment `v1` désigne la **version du contrat d'interface**, et non une base de données ni un numéro de version du logiciel. Il autorise la publication ultérieure d'un `/api/v2` incompatible tout en laissant fonctionner les clients existants pendant la transition.
 
-La base de données porte le nom **`linux_distro_reco`**. Ce nom n'apparaît qu'à un seul endroit du projet, la chaîne de connexion :
+La base de données porte le nom **`linux_distro_reco`**. Dans le code, ce nom n'apparaît qu'à un seul endroit, la chaîne de connexion de `catalog-service`, où il sert de valeur par défaut à la variable `DB_NAME` :
 
 ```yaml
 spring:
   datasource:
-    url: jdbc:mysql://mysql:3306/linux_distro_reco
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:linux_distro_reco}
 ```
+
+`docker-compose.yml` le reprend deux fois : pour créer la base (`MYSQL_DATABASE`) et pour la transmettre au service (`DB_NAME`).
 
 La route `/actuator/health`, fournie par le module Spring Boot Actuator, renvoie l'état de l'application et vérifie au passage la connexion à la base. Elle sert de sonde de démarrage à `docker-compose` et de vérification rapide du service déployé. Seul cet endpoint est exposé, à l'exclusion des autres routes d'Actuator susceptibles de divulguer la configuration.
 
@@ -534,9 +536,9 @@ Sprints d'une semaine, du jeudi au mercredi, suivis dans **Taiga** : https://tre
 ### 8.2 Règles de contribution
 
 - Une branche par fonctionnalité : `feat/moteur-scoring`, `fix/parsing-dxdiag`.
-- **Commits conventionnels** (`feat:`, `fix:`, `docs:`, `chore:`, `test:`) — imposés par release-please, qui en déduit le numéro de version et le journal des modifications. Cette discipline s'applique dès le premier commit.
+- **Commits conventionnels** (`feat:`, `fix:`, `docs:`, `chore:`, `test:`) — exigés pour release-please (à venir, sprint 5), qui en déduira le numéro de version et le journal des modifications. Cette discipline s'applique dès le premier commit.
 - Toute fusion vers `main` passe par une *pull request* relue par l'autre membre. Même à deux, la revue croisée détecte des erreurs et matérialise le travail d'équipe attendu par la grille.
-- La branche `main` est protégée : intégration continue verte obligatoire avant fusion.
+- La branche `main` est protégée (ruleset GitHub) : pull request et approbation de l'autre membre obligatoires, suppression et force-push bloqués. La réussite de l'intégration continue n'est pas encore exigée par le ruleset : le relecteur vérifie qu'elle est verte avant de fusionner.
 - Les commits sont répartis sur toute la durée du projet, jamais regroupés en fin de parcours.
 - Un fichier `.gitattributes` normalise les fins de ligne en LF dans le dépôt. Les deux postes de travail étant sous Windows, son absence produisait des différences fantômes sur des fichiers non modifiés.
 
@@ -566,8 +568,8 @@ Push / PR ──► compilation Maven
           ──► tests unitaires
           ──► build npm du front
           ──► construction des images Docker
-          ──► publication sur Docker Hub (sur tag de version)
-          ──► release-please : tag, release GitHub, changelog
+          ──► publication sur GHCR (sur tag de version) ; Docker Hub à venir (sprint 5)
+          ──► release-please : tag, release GitHub, changelog (à venir, sprint 5)
 ```
 
 ### 9.2 Images publiées
@@ -578,9 +580,9 @@ Push / PR ──► compilation Maven
 | `<compte>/linux-reco-recommendation` | recommendation-service |
 | `<compte>/linux-reco-web` | Interface React servie par nginx |
 
-Chaque image porte le numéro de version issu de release-please en plus de l'étiquette `latest`. L'exigence de deux images versionnées est ainsi dépassée.
+À terme, chaque image portera le numéro de version issu de release-please en plus de l'étiquette `latest`. L'exigence de deux images versionnées sera ainsi dépassée.
 
-**État transitoire.** Les images sont actuellement publiées sur GitHub Container Registry (`ghcr.io/kerngezonddenker/<image>`) par le workflow `publish.yml`, déclenché par un tag `vX.Y.Z`, avec l'étiquette de version et l'empreinte du commit, mais sans `latest`. La migration vers Docker Hub, l'ajout de l'étiquette `latest` et la création automatique des tags par release-please sont suivis dans l'US « Versionnage avec release-please et publication Docker Hub » (sprint 5). Le tag `v1.0.0` existant a été posé manuellement et n'est associé à aucune release GitHub : NF-08 n'est pas encore satisfait.
+**État transitoire.** Les images sont actuellement publiées sur GitHub Container Registry (`ghcr.io/kerngezonddenker/<image>`) par le workflow `publish.yml`, déclenché par un tag `vX.Y.Z`, avec l'étiquette de version, l'empreinte du commit et `latest`. La migration vers Docker Hub et la création automatique des tags par release-please sont suivies dans l'US « Versionnage avec release-please et publication Docker Hub » (sprint 5). Le projet reste en version 0.x jusqu'à la première version stable : le tag `v1.0.0`, posé manuellement, sera retiré, et release-please démarrera à 0.1.0. NF-08 n'est pas encore satisfait.
 
 ### 9.3 Hébergement
 
@@ -803,11 +805,13 @@ Le format **Conventional Commits** est obligatoire : il conditionne le fonctionn
 
 ### B.6 Releases et images Docker
 
+*Fonctionnement prévu à partir du sprint 5 ; voir l'état actuel au §9.2.*
+
 1. Vous fusionnez des pull requests dans `main` avec des messages conventionnels.
 2. **release-please** lit l'historique, en déduit le numéro de version suivant, et ouvre une *pull request de publication* contenant le journal des modifications généré.
 3. Vous relisez cette pull request et la fusionnez quand vous jugez la version prête.
 4. release-please pose alors le tag et crée la release GitHub.
-5. Le workflow d'intégration continue, déclenché par ce tag, construit les images Docker et les publie sur Docker Hub avec ce numéro de version.
+5. Le workflow d'intégration continue, déclenché par ce tag, construit les images Docker et les publie sur le registre d'images avec ce numéro de version.
 
 Vous ne calculez donc jamais un numéro de version à la main : il découle de vos messages de commit.
 
