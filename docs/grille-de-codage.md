@@ -69,7 +69,7 @@ Ces cinq entrées constituent le contenu de la table `use_case`. Le `code` est m
 
 ### 4.2 Critères de sélection de ces cas d'usage
 
-Deux tests ont présidé à cette liste, et s'appliqueront à tout ajout ultérieur.
+Trois tests ont présidé à cette liste, et s'appliqueront à tout ajout ultérieur.
 
 **Test de discrimination.** Un cas d'usage n'est retenu que si les distributions du catalogue y obtiennent des notes réellement différentes. Infographie, photographie et montage vidéo ont ainsi été fusionnés en un seul axe : les outils correspondants sont disponibles dans les dépôts de pratiquement toutes les distributions, et les trois axes auraient reçu des notes quasi identiques. Les maintenir séparés aurait représenté quarante-cinq notes à attribuer et justifier pour un pouvoir de différenciation nul, tout en faussant la moyenne d'un utilisateur cochant les trois — équivalente à n'en cocher qu'une, au prix de trois fois le travail.
 
