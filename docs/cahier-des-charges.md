@@ -294,7 +294,7 @@ Les deux services sont empaquetés séparément, versionnés séparément et peu
 
 Le segment `v1` désigne la **version du contrat d'interface**, et non une base de données ni un numéro de version du logiciel. Il autorise la publication ultérieure d'un `/api/v2` incompatible tout en laissant fonctionner les clients existants pendant la transition.
 
-La base de données porte le nom **`linux_distro_reco`**. Ce nom n'apparaît qu'à un seul endroit du projet, la chaîne de connexion de `catalog-service`, où il sert de valeur par défaut à la variable `DB_NAME` :
+La base de données porte le nom **`linux_distro_reco`**. Dans le code, ce nom n'apparaît qu'à un seul endroit, la chaîne de connexion de `catalog-service`, où il sert de valeur par défaut à la variable `DB_NAME` :
 
 ```yaml
 spring:
@@ -302,7 +302,7 @@ spring:
     url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:linux_distro_reco}
 ```
 
-`docker-compose.yml` le reprend deux fois : pour créer la base (`MYSQL_DATABASE`) et pour la transmettre au service (`DB_NAME`)
+`docker-compose.yml` le reprend deux fois : pour créer la base (`MYSQL_DATABASE`) et pour la transmettre au service (`DB_NAME`).
 
 La route `/actuator/health`, fournie par le module Spring Boot Actuator, renvoie l'état de l'application et vérifie au passage la connexion à la base. Elle sert de sonde de démarrage à `docker-compose` et de vérification rapide du service déployé. Seul cet endpoint est exposé, à l'exclusion des autres routes d'Actuator susceptibles de divulguer la configuration.
 
@@ -534,7 +534,7 @@ Sprints d'une semaine, du jeudi au mercredi, suivis dans **Taiga** : https://tre
 ### 8.2 Règles de contribution
 
 - Une branche par fonctionnalité : `feat/moteur-scoring`, `fix/parsing-dxdiag`.
-- **Commits conventionnels** (`feat:`, `fix:`, `docs:`, `chore:`, `test:`) — exigés pour release-please (à venir, sprint 5)
+- **Commits conventionnels** (`feat:`, `fix:`, `docs:`, `chore:`, `test:`) — exigés pour release-please (à venir, sprint 5), qui en déduira le numéro de version et le journal des modifications. Cette discipline s'applique dès le premier commit.
 - Toute fusion vers `main` passe par une *pull request* relue par l'autre membre. Même à deux, la revue croisée détecte des erreurs et matérialise le travail d'équipe attendu par la grille.
 - La branche `main` est protégée (ruleset GitHub) : pull request et approbation de l'autre membre obligatoires, suppression et force-push bloqués. La réussite de l'intégration continue n'est pas encore exigée par le ruleset : le relecteur vérifie qu'elle est verte avant de fusionner.
 - Les commits sont répartis sur toute la durée du projet, jamais regroupés en fin de parcours.
@@ -803,7 +803,7 @@ Le format **Conventional Commits** est obligatoire : il conditionne le fonctionn
 
 ### B.6 Releases et images Docker
 
-Fonctionnement prévu à partir du sprint 5 ; voir l'état actuel au §9.2.
+*Fonctionnement prévu à partir du sprint 5 ; voir l'état actuel au §9.2.*
 
 1. Vous fusionnez des pull requests dans `main` avec des messages conventionnels.
 2. **release-please** lit l'historique, en déduit le numéro de version suivant, et ouvre une *pull request de publication* contenant le journal des modifications généré.
