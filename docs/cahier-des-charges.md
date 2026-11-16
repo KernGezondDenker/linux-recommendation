@@ -275,22 +275,22 @@ Les deux services sont empaquetés séparément, versionnés séparément et peu
 
 **`catalog-service`**
 
-| Méthode | Route | Rôle |
-|---|---|---|
-| GET | `/api/v1/distributions` | Distributions et leurs exigences |
-| GET | `/api/v1/use-cases` | Cas d'usage du questionnaire |
-| GET | `/api/v1/applications` | Logiciels référencés |
-| GET | `/api/v1/applications/{id}/alternatives` | Alternatives Linux d'un logiciel |
-| POST | `/api/v1/sessions` | Historisation d'une recommandation |
-| GET | `/actuator/health` | Sonde de santé |
+| Méthode | Route | Rôle | État |
+|---|---|---|---|
+| GET | `/api/v1/distributions` | Distributions et leurs exigences | Disponible |
+| GET | `/api/v1/use-cases` | Cas d'usage du questionnaire | À venir |
+| GET | `/api/v1/applications` | Logiciels référencés | À venir |
+| GET | `/api/v1/applications/{id}/alternatives` | Alternatives Linux d'un logiciel | À venir |
+| POST | `/api/v1/sessions` | Historisation d'une recommandation | À venir |
+| GET | `/actuator/health` | Sonde de santé | Disponible |
 
 **`recommendation-service`**
 
-| Méthode | Route | Rôle |
-|---|---|---|
-| POST | `/api/v1/recommendations` | Calcule et retourne le classement |
-| POST | `/api/v1/hardware/parse-dxdiag` | Extrait la configuration d'un rapport DxDiag |
-| GET | `/actuator/health` | Sonde de santé |
+| Méthode | Route | Rôle | État |
+|---|---|---|---|
+| POST | `/api/v1/recommendations` | Calcule et retourne le classement | Disponible |
+| POST | `/api/v1/hardware/parse-dxdiag` | Extrait la configuration d'un rapport DxDiag | À venir |
+| GET | `/actuator/health` | Sonde de santé | Disponible |
 
 Le segment `v1` désigne la **version du contrat d'interface**, et non une base de données ni un numéro de version du logiciel. Il autorise la publication ultérieure d'un `/api/v2` incompatible tout en laissant fonctionner les clients existants pendant la transition.
 
