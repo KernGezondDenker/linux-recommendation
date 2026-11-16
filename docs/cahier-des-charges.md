@@ -804,6 +804,7 @@ Le format **Conventional Commits** est obligatoire : il conditionne le fonctionn
 | `test` | Ajout ou modification de tests | Aucun |
 | `refactor` | Réorganisation sans changement de comportement | Aucun |
 | `chore` | Tâche d'intendance (dépendances, configuration) | Aucun |
+| `ci` | Intégration continue | Aucun |
 | `feat!` ou `fix!` | Changement incompatible | Incrémente le premier chiffre (1.2.0 → 2.0.0) |
 
 ### B.6 Releases et images Docker
