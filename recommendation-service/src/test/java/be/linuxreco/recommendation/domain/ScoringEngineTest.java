@@ -21,7 +21,9 @@ import org.junit.jupiter.api.Test;
  */
 class ScoringEngineTest {
 
-    // ---- Donnees de l'exemple du cahier des charges, section 2.3 ----
+    // ---- Donnees fictives, reprises de l'exemple de la premiere note
+    // technique (document historique) : elles testent les regles du
+    // moteur, pas le catalogue reel ----
 
     private static DistributionCandidate mint() {
         return new DistributionCandidate(1L, "Linux Mint",
@@ -40,6 +42,9 @@ class ScoringEngineTest {
                 512, 2048, 2, 800, 1, 5, false, false,
                 Map.of("OFFICE", 2, "GAMING", 4, "EDUCATION", 5));
     }
+
+    // ---- Distributions du catalogue reel : exigences materielles de V2,
+    // poids d'usage reduits aux cas utiles aux tests ----
 
 private static DistributionCandidate ubuntuStudio() {
         return new DistributionCandidate(10L, "Ubuntu Studio",
