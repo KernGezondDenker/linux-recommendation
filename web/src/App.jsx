@@ -22,10 +22,10 @@ const CHAMPS =
 const USAGES = 
 [
   { code: 'OFFICE',      libelle: 'Bureautique et navigation' },
-  { code: 'GAMING',      libelle: 'Jeux video' },
-  { code: 'CREATIVE',    libelle: 'Creation multimedia (image, photo, video)' },
-  { code: 'DEVELOPMENT', libelle: 'Developpement et programmation' },
-  { code: 'EDUCATION',   libelle: 'Usage scolaire et educatif' },
+  { code: 'GAMING',      libelle: 'Jeux vidéo' },
+  { code: 'CREATIVE',    libelle: 'Création multimédia (image, photo, vidéo)' },
+  { code: 'DEVELOPMENT', libelle: 'Développement et programmation' },
+  { code: 'EDUCATION',   libelle: 'Usage scolaire et éducatif' },
 ]
 
 // les cinq descripteurs sont repris mot pour mot de la grille de codage
