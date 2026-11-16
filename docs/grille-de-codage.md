@@ -129,7 +129,7 @@ Dans ce document, **coder** signifie attribuer à un cas observé la valeur corr
 
 L'étape 2 est de loin la plus longue : elle représente plusieurs heures de lecture, là où le codage proprement dit est rapide une fois les faits établis. **Les URL sont consignées au moment de la lecture**, jamais reconstituées après coup.
 
-Avant de se répartir l'étape 3, les deux membres codent ensemble deux ou trois distributions en explicitant leur raisonnement, afin de vérifier qu'ils interprètent les critères de la même façon. Cette vérification préalable évite de découvrir une divergence d'interprétation une fois les quinze distributions traitées.
+Avant de se répartir l'étape 3, les deux membres codent ensemble deux ou trois distributions en explicitant leur raisonnement, afin de vérifier qu'ils interprètent les critères de la même façon. Cette vérification préalable évite de découvrir une divergence d'interprétation une fois toutes les distributions traitées.
 
 ### 5.3 Double codage indépendant
 
@@ -169,7 +169,7 @@ Le registre est tenu dans `docs/registre-des-attributions.md` : un tableau de di
 |---|---|---|---|---|---|
 | *(à compléter)* | | | | | |
 
-Quinze distributions et cinq cas d'usage produisent soixante-quinze notes. Les justifier toutes conduirait à les bâcler. Ne sont donc justifiées que trois catégories de cases :
+Cinq distributions et cinq cas d'usage produisent vingt-cinq notes. Les justifier toutes conduirait à les bâcler. Ne sont donc justifiées que trois catégories de cases :
 
 - **les notes 5**, les plus sourçables — le projet annonce lui-même sa vocation — et les plus influentes sur le score ;
 - **les notes 1**, une affirmation d'impraticabilité appelant une preuve ;
