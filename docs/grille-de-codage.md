@@ -190,7 +190,7 @@ L'objection d'arbitraire se traite définitivement en mesurant l'effet réel de 
 - **Classement stable** → l'imprécision des notes n'affecte pas le résultat. L'arbitraire résiduel est sans conséquence pratique, et c'est démontré plutôt qu'affirmé.
 - **Classement instable** → l'algorithme est trop sensible. Deux corrections possibles : réduire l'écart entre les coefficients, ou resserrer les critères d'attribution des notes concernées.
 
-Ce test constitue également le second test unitaire du projet, au-delà de celui exigé par les consignes.
+Ce test automatisé, prévu au sprint 8 (cahier des charges, §10), complétera les tests unitaires du moteur de recommandation.
 
 ---
 
