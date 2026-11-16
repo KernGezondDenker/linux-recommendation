@@ -69,7 +69,7 @@ Ces cinq entrées constituent le contenu de la table `use_case`. Le `code` est m
 
 ### 4.2 Critères de sélection de ces cas d'usage
 
-Deux tests ont présidé à cette liste, et s'appliqueront à tout ajout ultérieur.
+Trois tests ont présidé à cette liste, et s'appliqueront à tout ajout ultérieur.
 
 **Test de discrimination.** Un cas d'usage n'est retenu que si les distributions du catalogue y obtiennent des notes réellement différentes. Infographie, photographie et montage vidéo ont ainsi été fusionnés en un seul axe : les outils correspondants sont disponibles dans les dépôts de pratiquement toutes les distributions, et les trois axes auraient reçu des notes quasi identiques. Les maintenir séparés aurait représenté quarante-cinq notes à attribuer et justifier pour un pouvoir de différenciation nul, tout en faussant la moyenne d'un utilisateur cochant les trois — équivalente à n'en cocher qu'une, au prix de trois fois le travail.
 
@@ -129,7 +129,7 @@ Dans ce document, **coder** signifie attribuer à un cas observé la valeur corr
 
 L'étape 2 est de loin la plus longue : elle représente plusieurs heures de lecture, là où le codage proprement dit est rapide une fois les faits établis. **Les URL sont consignées au moment de la lecture**, jamais reconstituées après coup.
 
-Avant de se répartir l'étape 3, les deux membres codent ensemble deux ou trois distributions en explicitant leur raisonnement, afin de vérifier qu'ils interprètent les critères de la même façon. Cette vérification préalable évite de découvrir une divergence d'interprétation une fois les quinze distributions traitées.
+Avant de se répartir l'étape 3, les deux membres codent ensemble deux ou trois distributions en explicitant leur raisonnement, afin de vérifier qu'ils interprètent les critères de la même façon. Cette vérification préalable évite de découvrir une divergence d'interprétation une fois toutes les distributions traitées.
 
 ### 5.3 Double codage indépendant
 
@@ -159,19 +159,9 @@ La colonne « critère déclenchant » n'est pas un espace de rédaction libre :
 
 **Erreur à éviter.** L'absence de pilotes propriétaires n'est pas en soi un critère de difficulté : ce fait est déjà porté par la colonne `ships_proprietary_drivers` et alimente un autre critère du score. Le compter également dans la difficulté reviendrait à le comptabiliser deux fois. En revanche, sa conséquence en est un : l'ajout d'un dépôt tiers en ligne de commande relève du niveau 3.
 
-**Registre de difficulté** — une ligne par distribution.
+Le registre est tenu dans `docs/registre-des-attributions.md` : un tableau de difficulté (une ligne par distribution : note, critère déclenchant, fait observé, source) et une matrice de pertinence (une note par couple distribution × cas d'usage, sur les cinq axes du §4.1).
 
-| Distribution | Note | Critère déclenchant | Fait observé | Source |
-|---|---|---|---|---|
-| *(à compléter)* | | | | |
-
-**Registre de pertinence** — une note par couple (distribution, cas d'usage), consignée sous forme matricielle.
-
-| | Bureautique | Jeux vidéo | Création multimédia | Développement | Apprendre Linux |
-|---|---|---|---|---|---|
-| *(à compléter)* | | | | | |
-
-Quinze distributions et cinq cas d'usage produisent soixante-quinze notes. Les justifier toutes conduirait à les bâcler. Ne sont donc justifiées que trois catégories de cases :
+Cinq distributions et cinq cas d'usage produisent vingt-cinq notes. Les justifier toutes conduirait à les bâcler. Ne sont donc justifiées que trois catégories de cases :
 
 - **les notes 5**, les plus sourçables — le projet annonce lui-même sa vocation — et les plus influentes sur le score ;
 - **les notes 1**, une affirmation d'impraticabilité appelant une preuve ;
@@ -192,7 +182,7 @@ L'objection d'arbitraire se traite définitivement en mesurant l'effet réel de 
 - **Classement stable** → l'imprécision des notes n'affecte pas le résultat. L'arbitraire résiduel est sans conséquence pratique, et c'est démontré plutôt qu'affirmé.
 - **Classement instable** → l'algorithme est trop sensible. Deux corrections possibles : réduire l'écart entre les coefficients, ou resserrer les critères d'attribution des notes concernées.
 
-Ce test constitue également le second test unitaire du projet, au-delà de celui exigé par les consignes.
+Ce test automatisé, prévu au sprint 8 (cahier des charges, §10), complétera les tests unitaires du moteur de recommandation.
 
 ---
 
