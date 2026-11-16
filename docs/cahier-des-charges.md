@@ -541,7 +541,7 @@ Sprints d'une semaine, du jeudi au mercredi, suivis dans **Taiga** : https://tre
 ### 8.2 Règles de contribution
 
 - Une branche par fonctionnalité : `feat/moteur-scoring`, `fix/parsing-dxdiag`.
-- **Commits conventionnels** (`feat:`, `fix:`, `docs:`, `chore:`, `test:`) — exigés pour release-please (à venir, sprint 5), qui en déduira le numéro de version et le journal des modifications. Cette discipline s'applique dès le premier commit.
+- **Commits conventionnels** (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `ci:`, `chore:`) — exigés pour release-please (à venir, sprint 5), qui en déduira le numéro de version et le journal des modifications. Cette discipline s'applique dès le premier commit.
 - Toute fusion vers `main` passe par une *pull request* relue par l'autre membre. Même à deux, la revue croisée détecte des erreurs et matérialise le travail d'équipe attendu par la grille.
 - La branche `main` est protégée (ruleset GitHub) : pull request et approbation de l'autre membre obligatoires, suppression et force-push bloqués. La réussite de l'intégration continue n'est pas encore exigée par le ruleset : le relecteur vérifie qu'elle est verte avant de fusionner.
 - Les commits sont répartis sur toute la durée du projet, jamais regroupés en fin de parcours.
