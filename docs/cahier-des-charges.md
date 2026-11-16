@@ -18,7 +18,10 @@
 
 - `docs/note-technique-algorithme-et-base.md` — présentation détaillée du moteur et du modèle de données
 - `docs/grille-de-codage.md` — critères d'attribution des notes de difficulté et de pertinence
+- `docs/registre-des-attributions.md` — notes attribuées à chaque distribution, avec leurs sources
+- `docs/releve-des-distributions.xlsx` — relevé des caractéristiques publiées par chaque distribution
 - `catalog-service/src/main/resources/db/migration/V1__init_schema.sql` — schéma commenté
+- `CONTRIBUTING.md` — règles de contribution : branches, commits, pull requests
 
 ---
 
@@ -700,7 +703,7 @@ Documentation officielle consultée pour l'établissement des choix techniques d
 - Pro Git, Scott Chacon et Ben Straub (ouvrage libre, version française) : `https://git-scm.com/book/fr/v2`
 - Documentation GitHub : `https://docs.github.com/fr`
 
-Les sources du catalogue de distributions — sites et documentations officiels des projets retenus — sont consignées individuellement dans le registre des attributions de `docs/grille-de-codage.md`.
+Les sources du catalogue de distributions — sites et documentations officiels des projets retenus — sont consignées individuellement dans `docs/registre-des-attributions.md`.
 
 ---
 
