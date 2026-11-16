@@ -142,7 +142,7 @@ Format : `<type>(<portée facultative>): <description à l'impératif>`
 | `ci` | Intégration continue | aucun |
 | `feat!` / `fix!` | Changement incompatible | 1.2.0 → **2.0.0** |
 
-**Portées utilisées dans ce projet :** `catalog`, `reco`, `web`, `db`, `docker`, `ci`.
+**Portées utilisées dans ce projet :** `catalog`, `reco`, `web`, `db`, `docker`, `ci`. Les portées `deps` et `deps-dev` sont réservées aux mises à jour ouvertes par Dependabot.
 
 | ✅ Correct | ❌ Incorrect | Problème |
 |---|---|---|
