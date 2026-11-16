@@ -50,8 +50,10 @@ exigences publiées, et ils ne sont donc pas retenus.
 - **Aucune des cinq ne publie de score de référence processeur.** Toutes
   annoncent une fréquence, quand elles annoncent quelque chose. La
   colonne `min_cpu_score` a donc été remplacée par `min_cpu_mhz`.
-- Une seule publie un nombre de cœurs minimal sans ambiguïté
-  (Ubuntu Studio).
+- Deux publient un nombre de cœurs minimal : Ubuntu Studio et Zorin OS
+  Education (2 chacune). Le commentaire de V2 (« seule des cinq »)
+  est inexact ; une migration appliquée ne se modifie pas, la
+  correction est donc consignée ici.
 
 **⚠ À confirmer avant présentation**
 
