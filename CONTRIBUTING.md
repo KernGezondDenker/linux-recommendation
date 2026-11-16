@@ -129,7 +129,7 @@ Format : `<type>/<quelques-mots-en-minuscules>`
 
 Format : `<type>(<portée facultative>): <description à l'impératif>`
 
-**Aucun espace avant le type.** release-please lit ces messages pour calculer le numéro de version : un message mal formé est ignoré.
+**Aucun espace avant le type.** À partir du sprint 5, release-please lira ces messages pour calculer le numéro de version : un message mal formé sera ignoré.
 
 | Type | Usage | Effet sur la version |
 |---|---|---|

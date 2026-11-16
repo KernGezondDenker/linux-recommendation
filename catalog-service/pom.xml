@@ -72,7 +72,7 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- JUnit 5 + Mockito + AssertJ, pour les tests uniquement -->
+        <!-- JUnit 6 (Jupiter), AssertJ et Mockito, fournis par le starter ; pour les tests uniquement -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
