@@ -257,6 +257,8 @@ En conséquence, **les cinq descripteurs de la grille de difficulté constituent
 └───────────────────┘
 ```
 
+Ce schéma décrit l'architecture cible. À ce stade, l'interface n'appelle que `recommendation-service`, qui interroge lui-même `catalog-service`. Les appels directs de l'interface au catalogue arriveront avec la fiche de distribution (F5) et le répertoire des logiciels (F6) ; ils exigeront d'autoriser l'origine du front dans `catalog-service`, comme `CorsConfig` le fait déjà dans `recommendation-service` (§7.2).
+
 Trois rôles distincts composent la couche d'interface : **React** est la bibliothèque dans laquelle l'interface est écrite, **Vite** l'outil qui convertit ce code en fichiers interprétables par un navigateur, **nginx** le serveur qui les délivre.
 
 ### 4.2 Décomposition en micro-services
@@ -275,22 +277,22 @@ Les deux services sont empaquetés séparément, versionnés séparément et peu
 
 **`catalog-service`**
 
-| Méthode | Route | Rôle |
-|---|---|---|
-| GET | `/api/v1/distributions` | Distributions et leurs exigences |
-| GET | `/api/v1/use-cases` | Cas d'usage du questionnaire |
-| GET | `/api/v1/applications` | Logiciels référencés |
-| GET | `/api/v1/applications/{id}/alternatives` | Alternatives Linux d'un logiciel |
-| POST | `/api/v1/sessions` | Historisation d'une recommandation |
-| GET | `/actuator/health` | Sonde de santé |
+| Méthode | Route | Rôle | État |
+|---|---|---|---|
+| GET | `/api/v1/distributions` | Distributions et leurs exigences | Disponible |
+| GET | `/api/v1/use-cases` | Cas d'usage du questionnaire | À venir |
+| GET | `/api/v1/applications` | Logiciels référencés | À venir |
+| GET | `/api/v1/applications/{id}/alternatives` | Alternatives Linux d'un logiciel | À venir |
+| POST | `/api/v1/sessions` | Historisation d'une recommandation | À venir |
+| GET | `/actuator/health` | Sonde de santé | Disponible |
 
 **`recommendation-service`**
 
-| Méthode | Route | Rôle |
-|---|---|---|
-| POST | `/api/v1/recommendations` | Calcule et retourne le classement |
-| POST | `/api/v1/hardware/parse-dxdiag` | Extrait la configuration d'un rapport DxDiag |
-| GET | `/actuator/health` | Sonde de santé |
+| Méthode | Route | Rôle | État |
+|---|---|---|---|
+| POST | `/api/v1/recommendations` | Calcule et retourne le classement | Disponible |
+| POST | `/api/v1/hardware/parse-dxdiag` | Extrait la configuration d'un rapport DxDiag | À venir |
+| GET | `/actuator/health` | Sonde de santé | Disponible |
 
 Le segment `v1` désigne la **version du contrat d'interface**, et non une base de données ni un numéro de version du logiciel. Il autorise la publication ultérieure d'un `/api/v2` incompatible tout en laissant fonctionner les clients existants pendant la transition.
 
@@ -402,11 +404,11 @@ Chaque **adaptateur** l'implémente pour une technologie donnée, et est activé
 ```java
 @Repository
 @Profile("mysql")
-public class JpaDistributionRepository implements DistributionRepository { … }
+public class JpaDistributionRepositoryAdapter implements DistributionRepository { … }
 
 @Repository
 @Profile("mongo")
-public class MongoDistributionRepository implements DistributionRepository { … }
+public class MongoDistributionRepositoryAdapter implements DistributionRepository { … } // sprint 7
 ```
 
 La bascule s'opère par une seule variable d'environnement :
@@ -506,13 +508,13 @@ L'absence de publicité et de traçage écarte par ailleurs toute obligation de 
 | Injection SQL | Paramètres d'API | Requêtes paramétrées via Spring Data ; aucune concaténation de chaîne dans une requête |
 | Injection XSS | Affichage des saisies | React échappe par défaut ; usage de `dangerouslySetInnerHTML` **proscrit** |
 | Valeurs d'entrée aberrantes | Formulaire | Contraintes `@Min` / `@Max` sur le contrat d'entrée, validées par `@Valid` avant tout traitement métier ; la validation du navigateur est un confort, celle du serveur la garantie |
-| Déni de service par charge utile | DxDiag volumineux | Limite de taille de requête (64 Ko) ; extraction par expressions régulières sur quelques champs ; aucun stockage du texte brut |
+| Déni de service par charge utile | DxDiag volumineux | Prévu avec la route `parse-dxdiag` : limite de taille de requête (64 Ko) ; extraction par expressions régulières sur quelques champs ; aucun stockage du texte brut |
 | Fuite de secrets | Identifiants en dépôt | Secrets en variables d'environnement et GitHub Secrets ; `.gitignore` couvrant les fichiers locaux |
 | Requêtes inter-origines non maîtrisées | CORS | Origine du front autorisée nommément ; jamais `*` |
 | Exposition de la base | Réseau | MySQL et MongoDB sans port publié vers l'hôte ; joignables uniquement depuis le réseau interne Docker |
-| Élévation de privilèges en conteneur | Image Docker | Exécution sous utilisateur non privilégié ; image de base *slim* |
+| Élévation de privilèges en conteneur | Image Docker | Exécution sous utilisateur non privilégié ; image d'exécution minimale (JRE sur Alpine), sans JDK ni Maven |
 | Dépendances vulnérables | Chaîne d'approvisionnement | Dependabot activé ; analyse des dépendances en intégration continue |
-| Divulgation par messages d'erreur | Réponses d'API | Gestionnaire d'exceptions global ; aucune trace de pile renvoyée au client |
+| Divulgation par messages d'erreur | Réponses d'API | Prévu : gestionnaire d'exceptions global (`@ControllerAdvice`) ; aucune trace de pile renvoyée au client |
 | Ports d'administration exposés | Spring Actuator | Seule la sonde `health` est publiée |
 
 ### 7.3 Limites reconnues
