@@ -18,7 +18,10 @@
 
 - `docs/note-technique-algorithme-et-base.md` — présentation détaillée du moteur et du modèle de données
 - `docs/grille-de-codage.md` — critères d'attribution des notes de difficulté et de pertinence
+- `docs/registre-des-attributions.md` — notes attribuées à chaque distribution, avec leurs sources
+- `docs/releve-des-distributions.xlsx` — relevé des vingt-et-une distributions examinées, dont le registre est la transcription
 - `catalog-service/src/main/resources/db/migration/V1__init_schema.sql` — schéma commenté
+- `CONTRIBUTING.md` — règles de contribution : branches, commits, pull requests
 
 ---
 
@@ -321,10 +324,10 @@ La route `/actuator/health`, fournie par le module Spring Boot Actuator, renvoie
 | Gestion de build | Maven | Gradle | Configuration déclarative, plus lisible pour une première expérience |
 | Framework d'interface | React 18 + Vite | Angular, Vue, Svelte | Recommandé ; Vite offre un temps de démarrage très court en développement |
 | Langage d'interface | JavaScript (JSX) | TypeScript | L'équipe découvre React ; superposer l'apprentissage d'un système de types à celui du framework aurait multiplié les obstacles sur un périmètre d'interface restreint. Le passage à TypeScript est identifié comme amélioration (§11) |
-| Base relationnelle | MySQL 8 | PostgreSQL, MariaDB | SQL conseillé ; modèle fortement relationnel ; outillage graphique accessible |
+| Base relationnelle | MySQL 8.4 LTS | PostgreSQL, MariaDB | SQL conseillé ; modèle fortement relationnel ; outillage graphique accessible |
 | Base alternative | MongoDB 7 | Redis, PostgreSQL | Paradigme radicalement différent : c'est ce contraste qui **prouve** l'indépendance de l'application vis-à-vis du stockage |
 | Migrations | Flyway | Liquibase | Explicitement cité dans les consignes ; migrations en SQL pur |
-| Tests | JUnit 5 + Mockito | TestNG | Standard de l'écosystème Spring Boot |
+| Tests | JUnit 6 (Jupiter) + AssertJ + ArchUnit | TestNG | Standard de l'écosystème Spring Boot ; ArchUnit vérifie l'architecture hexagonale |
 | Conteneurisation | Docker + docker-compose | Podman | Requis ; compose toléré par les consignes |
 | Intégration continue | GitHub Actions | GitLab CI, Jenkins | Fortement conseillé ; intégré au dépôt |
 | Versionnage | release-please | semantic-release | Fortement conseillé ; génère automatiquement le journal des modifications |
@@ -482,6 +485,8 @@ Cette décision a remplacé une première conception comportant des tables `cpu`
 **Colonnes nullables pour les exigences non publiées.** Lorsqu'un projet ne documente pas une exigence minimale, la colonne vaut `NULL` et le filtre correspondant est neutralisé (§2.3). Ces colonnes sont donc déclarées `Integer` et non `int` côté Java : un `int` aurait silencieusement converti l'absence de donnée en zéro.
 
 **Actions référentielles explicites.** `CASCADE` lorsque l'enfant n'a pas d'existence propre sans son parent, `RESTRICT` sur les tables de référence pour empêcher une suppression accidentelle, `SET NULL` sur l'historique afin qu'une session conserve sa valeur de trace même si la distribution est retirée du catalogue.
+
+**Exception au typage des clés.** Les clés primaires sont des `BIGINT` (`Long` côté Java), à une exception près : `use_case.id` et la clé étrangère `distribution_use_case.use_case_id` sont des `INT` (`Integer` côté Java). Le commentaire en tête de `V1__init_schema.sql` annonce `BIGINT` pour toutes les clés ; une migration déjà appliquée ne se modifie pas, l'écart est donc consigné ici.
 
 ### 6.3 Constitution du catalogue
 
@@ -661,7 +666,7 @@ Documentation officielle consultée pour l'établissement des choix techniques d
 
 - Spring Boot — documentation de référence : `https://docs.spring.io/spring-boot/`
 - Spring Boot Actuator, points d'accès de supervision : `https://docs.spring.io/spring-boot/reference/actuator/endpoints.html`
-- JUnit 5, guide de l'utilisateur : `https://junit.org/junit5/docs/current/user-guide/`
+- JUnit 6, guide de l'utilisateur : `https://docs.junit.org/`
 
 **Couche d'interface**
 
@@ -671,7 +676,7 @@ Documentation officielle consultée pour l'établissement des choix techniques d
 
 **Base de données**
 
-- MySQL 8.0 Reference Manual : `https://dev.mysql.com/doc/refman/8.0/en/`
+- MySQL 8.4 Reference Manual : `https://dev.mysql.com/doc/refman/8.4/en/`
   - Types entiers : `integer-types.html`
   - Types `CHAR`, `VARCHAR` et `TEXT` : `char.html`
   - Contraintes `CHECK` : `create-table-check-constraints.html`
@@ -690,7 +695,7 @@ Documentation officielle consultée pour l'établissement des choix techniques d
 - Docker, documentation officielle : `https://docs.docker.com/`
 - GitHub Actions : `https://docs.github.com/en/actions`
 - release-please : `https://github.com/googleapis/release-please`
-- release-please-action : `https://github.com/google-github-actions/release-please-action`
+- release-please-action : `https://github.com/googleapis/release-please-action`
 - Conventional Commits, spécification 1.0.0 : `https://www.conventionalcommits.org/fr/v1.0.0/`
 - Semantic Versioning : `https://semver.org/lang/fr/`
 
@@ -704,7 +709,7 @@ Documentation officielle consultée pour l'établissement des choix techniques d
 - Pro Git, Scott Chacon et Ben Straub (ouvrage libre, version française) : `https://git-scm.com/book/fr/v2`
 - Documentation GitHub : `https://docs.github.com/fr`
 
-Les sources du catalogue de distributions — sites et documentations officiels des projets retenus — sont consignées individuellement dans le registre des attributions de `docs/grille-de-codage.md`.
+Les sources du catalogue de distributions — sites et documentations officiels des projets retenus — sont consignées individuellement dans `docs/registre-des-attributions.md`.
 
 ---
 
@@ -772,7 +777,7 @@ git pull
 git checkout -b feat/moteur-scoring
 
 # 3. Travailler, puis enregistrer par étapes cohérentes
-git add .
+git add chemin/du/fichier
 git commit -m "feat(reco): calcul du score d'adequation a l'usage"
 
 # 4. Publier la branche sur GitHub
@@ -780,6 +785,8 @@ git push -u origin feat/moteur-scoring
 
 # 5. Ouvrir une pull request, la faire relire, puis la fusionner
 ```
+
+**Ajouter les fichiers un par un.** `git add .` ajoute tout ce qui a changé dans le dossier, y compris un fichier local ajouté par accident. Nommer chaque fichier oblige à vérifier ce que l'on enregistre (voir aussi `CONTRIBUTING.md`).
 
 **Un commit par unité de sens.** Un commit qui modifie le moteur, corrige une faute dans le README et change la configuration Docker est impossible à relire et impossible à annuler proprement.
 
@@ -801,6 +808,7 @@ Le format **Conventional Commits** est obligatoire : il conditionne le fonctionn
 | `test` | Ajout ou modification de tests | Aucun |
 | `refactor` | Réorganisation sans changement de comportement | Aucun |
 | `chore` | Tâche d'intendance (dépendances, configuration) | Aucun |
+| `ci` | Intégration continue | Aucun |
 | `feat!` ou `fix!` | Changement incompatible | Incrémente le premier chiffre (1.2.0 → 2.0.0) |
 
 ### B.6 Releases et images Docker
