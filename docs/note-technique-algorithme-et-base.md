@@ -1,5 +1,7 @@
 # Note technique — Base de données et moteur de recommandation
 
+> **Document historique.** Cette note décrit la conception initiale (octobre 2026), présentée en réponse aux remarques de la présentation intermédiaire. Le projet a évolué depuis : tables `cpu` et `gpu` supprimées, catalogue de cinq distributions, cinq cas d'usage, coefficients fixés dans le code. La référence à jour est le cahier des charges : §2.3 pour le moteur, §6 pour le modèle de données.
+
 **Projet** : LinuxRecommendation
 **Unité d'enseignement** : Projet d'intégration de développement (7534 35 U32 D2)
 **Objet** : préciser le fonctionnement du moteur de recommandation et du modèle de données, en réponse aux remarques formulées lors de la présentation intermédiaire.

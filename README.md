@@ -120,7 +120,7 @@ dans le cahier des charges, §4.3.
 | Document | Contenu |
 |---|---|
 | `docs/cahier-des-charges.md` | Périmètre, architecture, choix techniques, sécurité |
-| `docs/note-technique-algorithme-et-base.md` | Moteur et modèle de données en détail |
+| `docs/note-technique-algorithme-et-base.md` | Conception initiale (octobre), conservée à titre historique |
 | `docs/grille-de-codage.md` | Critères d'attribution des notes du catalogue |
 | `docs/registre-des-attributions.md` | Chaque note du catalogue, son fait observé et sa source |
 | `docs/releve-des-distributions.xlsx` | Relevé brut des 21 distributions examinées |

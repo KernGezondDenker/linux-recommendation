@@ -16,7 +16,7 @@
 
 **Documents associés**
 
-- `docs/note-technique-algorithme-et-base.md` — présentation détaillée du moteur et du modèle de données
+- `docs/note-technique-algorithme-et-base.md` — conception initiale (octobre 2026), conservée à titre historique ; la référence à jour est le présent document (§2.3 et §6)
 - `docs/grille-de-codage.md` — critères d'attribution des notes de difficulté et de pertinence
 - `docs/registre-des-attributions.md` — notes attribuées à chaque distribution, avec leurs sources
 - `docs/releve-des-distributions.xlsx` — relevé des vingt-et-une distributions examinées, dont le registre est la transcription
