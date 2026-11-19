@@ -33,18 +33,4 @@ public class DistributionService
     {
         return repository.findAll();
     }
-
-    // exemple de VRAIE logique metier, placé ici et pas dans une requete
-    // sql : écrite en java, elle reste valable à l'identique sur mysql
-    // comme sur mongodb. en sql il aurait fallu la reecrire en langage
-    // mongo
-    public List<Distribution> findCompatibleWith(int ramMb, int storageGb, int cpuMhz, int cpuCores) 
-    {
-        return repository.findAll().stream().filter(d -> satisfies(ramMb, d.minRamMb())).filter(d -> satisfies(storageGb, d.minStorageGb())).filter(d -> satisfies(cpuMhz, d.minCpuMhz())).filter(d -> satisfies(cpuCores,d.minCpuCores())).toList();
-    }
-
-    private static boolean satisfies(int declared, Integer requirement) 
-    {
-        return requirement == null || declared >= requirement;
-    }
 }
