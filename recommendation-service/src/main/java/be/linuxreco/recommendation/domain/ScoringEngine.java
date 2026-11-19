@@ -84,6 +84,8 @@ public final class ScoringEngine
 
     // critère 3: confort materiel
     // binaire : 0 ou +10, rien entre les deux. il y a bien un effet de
+    // seuil (une machine juste sous la ram recommandee obtient 0), assume :
+    // le critere ne pese que 10 points sur 115 (cahier des charges §2.3)
     static int comfortScore(DistributionCandidate d, UserProfile p) 
     {
 

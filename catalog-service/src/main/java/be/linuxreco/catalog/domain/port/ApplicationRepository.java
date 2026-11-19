@@ -8,8 +8,8 @@ import java.util.Optional;
 /**
  * le port des logiciels et de leurs alternatives.
  *
- * les trois methodes correspondent aux trois routes declarees au
- * §4.3 du cahier des charges, pas une de plus.
+ * deux methodes servent les deux routes prevues au §4.3 du cahier des
+ * charges (marquees "a venir") ; findById est un outil interne.
  */
 public interface ApplicationRepository {
 
