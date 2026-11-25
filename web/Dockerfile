@@ -7,11 +7,10 @@ RUN npm ci
 
 COPY . .
 
-# L'URL de l'API est injectee AU MOMENT DU BUILD : Vite la remplace
-# dans le code genere. Un navigateur n'a pas de variables
-# d'environnement, contrairement a un service Java.
-ARG VITE_RECOMMENDATION_URL=http://localhost:8082
-ENV VITE_RECOMMENDATION_URL=$VITE_RECOMMENDATION_URL
+# AUCUNE adresse d'API injectee ici, volontairement. Le front appelle
+# /api/v1/... sur sa propre origine et nginx relaie (voir nginx.conf).
+# L'image est donc identique quel que soit le serveur qui l'heberge :
+# changer d'hebergeur ne demande aucune reconstruction.
 RUN npm run build
 
 # ---------- Etape 2 : service des fichiers ----------

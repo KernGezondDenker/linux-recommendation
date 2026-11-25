@@ -1,0 +1,97 @@
+# =====================================================================
+# Pile de PRODUCTION.
+#
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# docker-compose.yml reste le fichier de DEVELOPPEMENT et n'est pas
+# modifie. Trois differences de fond ici :
+#
+#   1. Aucun "build:". La VM telecharge les images deja publiees sur
+#      GHCR par publish.yml, elle ne compile rien. C'est l'exigence
+#      NF-08 : ce qui tourne en ligne est exactement ce que la CI a
+#      construit et teste, pas une recompilation locale qui pourrait
+#      differer.
+#
+#   2. Aucune valeur par defaut pour les secrets. La syntaxe ${VAR:?}
+#      fait ECHOUER le demarrage si la variable manque, au lieu de
+#      retomber silencieusement sur un mot de passe connu de tous
+#      ceux qui ont lu le depot (cahier §7.3).
+#
+#   3. Un seul port public : 80. catalog-service et
+#      recommendation-service ne sont joignables que par le reseau
+#      interne de Docker ; nginx relaie /api/ et /actuator/health vers
+#      l'API. Aucune adresse de serveur n'est inscrite dans les images,
+#      elles sont donc identiques quel que soit l'hebergeur.
+#
+# Les valeurs viennent d'un fichier .env place A COTE de ce fichier,
+# sur la VM uniquement, en droits 600. Voir .env.example.
+# =====================================================================
+services:
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: "${DB_NAME:?DB_NAME absent du .env}"
+      MYSQL_USER: "${DB_USER:?DB_USER absent du .env}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:?DB_PASSWORD absent du .env}"
+      MYSQL_ROOT_PASSWORD: "${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD absent du .env}"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    # AUCUN "ports:". La base n'est joignable que depuis le reseau
+    # interne de Docker. Publier 3306 l'exposerait a Internet entier.
+    healthcheck:
+      # 127.0.0.1 et NON localhost. Avec "localhost", mysqladmin passe
+      # par la socket Unix, qui repond des l'initialisation alors que
+      # le port TCP 3306 n'est pas encore ouvert : MySQL est declare
+      # sain trop tot et catalog-service echoue au demarrage.
+      # Sur une VM neuve, l'initialisation prend 20 a 30 secondes,
+      # soit exactement la fenetre ou ce faux positif se produit. En
+      # local le temps de compilation le masquait.
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  catalog-service:
+    image: ghcr.io/kerngezonddenker/linux-reco-catalog:${APP_VERSION:?APP_VERSION absent du .env}
+    environment:
+      SPRING_PROFILES_ACTIVE: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: "${DB_NAME:?}"
+      DB_USER: "${DB_USER:?}"
+      DB_PASSWORD: "${DB_PASSWORD:?}"
+    # AUCUN "ports:" : service interne.
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  recommendation-service:
+    image: ghcr.io/kerngezonddenker/linux-reco-recommendation:${APP_VERSION:?}
+    environment:
+      CATALOG_BASE_URL: http://catalog-service:8081
+      # Pas de CORS_ALLOWED_ORIGIN : le navigateur appelle /api/v1/...
+      # sur l'origine du site, nginx relaie par le reseau interne.
+      # Meme origine, donc aucune requete inter-origines a autoriser.
+    # AUCUN "ports:". L'API n'est joignable que par nginx. La sonde
+    # exigee par la US #52 est servie sur le port 80, relayee par
+    # nginx : http://<adresse>/actuator/health
+    depends_on:
+      - catalog-service
+    restart: unless-stopped
+
+  web:
+    image: ghcr.io/kerngezonddenker/linux-reco-web:${APP_VERSION:?}
+    ports:
+      # 80 cote Internet, 8080 dans le conteneur : nginx tourne sous un
+      # utilisateur non privilegie, qui ne peut pas ouvrir un port
+      # inferieur a 1024.
+      - "80:8080"
+    depends_on:
+      - recommendation-service
+    restart: unless-stopped
+
+volumes:
+  mysql-data:

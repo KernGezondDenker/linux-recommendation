@@ -8,5 +8,15 @@ import react from '@vitejs/plugin-react'
 // qui recharge la page a chaque sauvegarde.
 export default defineConfig({
   plugins: [react()],
-  server: { port: 5173 }
+  server: {
+    port: 5173,
+    // Equivalent du relais nginx, pour "npm run dev" hors Docker :
+    // le serveur de developpement transmet /api/... et /actuator/...
+    // au service lance sur le poste. Sans cela, l'appel relatif du
+    // front viserait le serveur de Vite, qui ne connait pas l'API.
+    proxy: {
+      '/api': 'http://localhost:8082',
+      '/actuator': 'http://localhost:8082',
+    },
+  },
 })

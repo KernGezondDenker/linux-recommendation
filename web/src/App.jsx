@@ -1,8 +1,16 @@
 import { useState } from 'react'
 
-// l'url de l'api vient d'une variable lue par vite AU MOMENT DU BUILD.
-// jamais ecrite en dur : elle differe entre le poste de dev et le serveur
-const API = import.meta.env.VITE_RECOMMENDATION_URL || 'http://localhost:8082'
+// chaine vide par defaut : l'appel devient RELATIF (/api/v1/...) et part
+// vers la meme origine que la page, ou nginx le relaie vers l'api. aucune
+// adresse de serveur n'est donc inscrite dans le javascript.
+//
+// ?? et non || : || remplacerait aussi la chaine vide, qui est falsy en
+// javascript, et ferait revenir l'adresse en dur. ?? ne se declenche que
+// sur null et undefined.
+//
+// la variable reste lisible pour un cas particulier : viser une api
+// distante depuis un poste de dev, sans passer par docker.
+const API = import.meta.env.VITE_RECOMMENDATION_URL ?? ''
 
 // les quatre champs numeriques, decrits une fois au lieu d'etre recopies
 // quatre fois. 'min' et 'max' reprennent EXACTEMENT les @Min/@Max du
