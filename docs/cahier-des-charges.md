@@ -355,8 +355,7 @@ linux-recommendation/
 │   ├── releve-des-distributions.xlsx
 │   └── securite.md                  (à venir, sprint 8)
 ├── .github/
-│   ├── workflows/
-│   └── dependabot.yml
+│   └── workflows/
 ├── docker-compose.yml
 ├── .gitattributes
 ├── .gitignore
@@ -520,7 +519,7 @@ L'absence de publicité et de traçage écarte par ailleurs toute obligation de 
 | Requêtes inter-origines non maîtrisées | CORS | Origine du front autorisée nommément ; jamais `*` |
 | Exposition de la base | Réseau | MySQL et MongoDB sans port publié vers l'hôte ; joignables uniquement depuis le réseau interne Docker |
 | Élévation de privilèges en conteneur | Image Docker | Exécution sous utilisateur non privilégié ; image d'exécution minimale (JRE sur Alpine), sans JDK ni Maven |
-| Dépendances vulnérables | Chaîne d'approvisionnement | Dependabot activé ; analyse des dépendances en intégration continue |
+| Dépendances vulnérables | Chaîne d'approvisionnement | Analyse des dépendances en intégration continue (`dependency-review` sur chaque pull request) |
 | Divulgation par messages d'erreur | Réponses d'API | Prévu : gestionnaire d'exceptions global (`@ControllerAdvice`) ; aucune trace de pile renvoyée au client |
 | Ports d'administration exposés | Spring Actuator | Seule la sonde `health` est publiée |
 
